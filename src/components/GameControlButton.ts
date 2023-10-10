@@ -4,7 +4,7 @@ export default class GameControlButton extends Main {
   private controlButton: HTMLElement;
 
   constructor() {
-    super(['chinh1', 'chinh2']);
+    super(['player', 'computer']);
 
     const app = <HTMLElement>document.getElementById('app');
     this.controlButton = <HTMLElement>document.createElement('div');
@@ -35,7 +35,6 @@ export default class GameControlButton extends Main {
   private controlButtonClicked(startButton: HTMLButtonElement, stopButton: HTMLButtonElement) {
     startButton.addEventListener('click', () => {
       if (this.playStatus === 'inMenuStartGame') {
-        console.log('111 startGameClicked');
         this.start();
         startButton.disabled = true;
         stopButton.disabled = false;
@@ -43,7 +42,6 @@ export default class GameControlButton extends Main {
     });
     stopButton.addEventListener('click', () => {
       if (this.playStatus !== 'inMenuStartGame') {
-        console.log('111 stop clicked');
         this.stop();
         startButton.disabled = false;
         stopButton.disabled = true;

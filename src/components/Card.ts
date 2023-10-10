@@ -1,23 +1,34 @@
 import { CARD_INFO } from '../constant';
+import { IAction } from '../types';
 
 export default class Card {
-  public id: string;
+  public id: number;
   public x: number = 0;
   public y: number = 0;
 
-  constructor(id: string) {
+  constructor(id: number) {
     this.id = id;
   }
 
-  public drawFaceUpCard(context: CanvasRenderingContext2D, x: number, y: number, dispatch?: any): void {
+  public drawFaceUpCard(
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    playerType: string,
+    action?: IAction,
+  ): void {
     this.x = x;
     this.y = y;
     if (context) {
       let borderColor: string = 'white';
-      if (dispatch.action === 'click-card' && this.id == dispatch.index) {
-        borderColor = 'red';
+      if (action && playerType === 'player') {
+        if (
+          (action.name === 'click-hand-card' || action.name === 'click-field-card') &&
+          this.id == action.payload.id
+        ) {
+          borderColor = 'red';
+        }
       }
-      console.log('111 render card', this.id);
       // draw background
       context.beginPath();
       context.fillStyle = 'white';
@@ -36,7 +47,7 @@ export default class Card {
       context.fillStyle = 'black';
       context.font = CARD_INFO.titleFont;
       context.fillText(
-        this.id,
+        this.id.toString(),
         x + CARD_INFO.space,
         y + CARD_INFO.space + CARD_INFO.titleHeight / 2,
         CARD_INFO.width - CARD_INFO.space * 2,
