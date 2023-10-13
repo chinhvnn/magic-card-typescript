@@ -1,17 +1,17 @@
 import { IAction, IEffect, TPlayStatus } from '../types';
-import { DECK, GRAVE, SCREEN } from '../constant';
+import { DECK, GRAVE, SCREEN } from '../constant/constant';
 import Deck from './Deck';
 import Player from './Player';
 import { checkCoordinate, getSelectedCard } from '../helper/checkCoordinate';
-import { drawViewInfo } from '../helper/draw/drawViewInfo';
+import { drawViewInfo } from './draw/drawViewInfo';
 import Card from './Card';
-import { drawActionMenu, getActionMenuCoordinate } from '../helper/draw/drawActionMenu';
+import { drawActionMenu, getActionMenuCoordinate } from './draw/drawActionMenu';
 
 export default class Main {
   protected players: Player[] = [];
   protected decks: Deck[] = [];
   protected turn: string;
-  protected action: IAction = { name: 'init', mouseCoordinate: {} };
+  protected action: IAction = { name: 'init', mouseCoordinate: {}, type: null };
 
   protected canvas: HTMLCanvasElement;
   protected context: CanvasRenderingContext2D;
@@ -92,12 +92,10 @@ export default class Main {
     this.players[1].playOneCard(11);
     this.players[1].playOneCard(12);
     this.players[1].playOneCard(13);
-    this.players[1].playOneCard(14);
-    this.players[1].playOneCard(15);
     console.log('111 computer', this.players[1]);
 
     // draw game
-    this.drawGame({ name: 'init', mouseCoordinate: {} });
+    this.drawGame({ name: 'init', mouseCoordinate: {}, type: null });
   }
 
   /*----------------------------------------------------------------*
@@ -182,7 +180,7 @@ export default class Main {
     let xMouse = e.clientX - (window.innerWidth - SCREEN.width) / 2;
     let yMouse = e.clientY - (window.innerHeight - SCREEN.height - 53) / 2;
     let mouseCoordinate = { x: xMouse, y: yMouse };
-    let nextAction: IAction = { name: '', mouseCoordinate, payload: {} };
+    let nextAction: IAction = { name: '', mouseCoordinate, type: null, payload: {} };
     const selectedHandCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getHandCards());
     const selectedFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getFieldCards());
     const selectedOpponentFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[1].getFieldCards());
@@ -190,6 +188,7 @@ export default class Main {
     //check click deck
     if (checkCoordinate(mouseCoordinate, DECK)) {
       nextAction.name = 'click-deck';
+      nextAction.type = 'deck';
       nextAction.payload.x = DECK.x;
       nextAction.payload.y = DECK.y;
     }
@@ -197,6 +196,7 @@ export default class Main {
     //check click grave
     if (checkCoordinate(mouseCoordinate, GRAVE)) {
       nextAction.name = 'click-grave';
+      nextAction.type = 'grave';
       nextAction.payload.x = GRAVE.x;
       nextAction.payload.y = GRAVE.y;
     }
@@ -204,20 +204,23 @@ export default class Main {
     //check click hand cards
     if (selectedHandCard?.id) {
       nextAction.name = 'click-hand-card';
+      nextAction.type = 'card';
       nextAction.payload = selectedHandCard;
     }
 
     //check click field cards
     if (selectedFieldCard?.id) {
       nextAction.name = 'click-field-card';
+      nextAction.type = 'card';
       nextAction.payload = selectedFieldCard;
     }
 
-    //check click opponent card
+    //check click attack opponent card
     if (selectedOpponentFieldCard?.id) {
       if (this.action?.name === 'click-attack') {
-        nextAction.name = 'click-opponent-field-card';
-        nextAction.payload.id = selectedOpponentFieldCard.id;
+        nextAction.type = 'action-menu';
+        nextAction.name = 'click-attack-opponent-field-card';
+        nextAction.payload = selectedOpponentFieldCard;
 
         //calculator atk
         this.cardAttack(

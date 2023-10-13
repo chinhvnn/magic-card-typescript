@@ -6,7 +6,7 @@ export const SCREEN = {
   bg: 'black',
 };
 
-export const CARD_INFO = {
+export const CARD = {
   width: 80,
   height: 110,
   space: 5,
@@ -21,11 +21,11 @@ export const CARD_INFO = {
 
 export const DECK = {
   x: SCREEN.padding,
-  y: SCREEN.height / 2 + SCREEN.lobby + SCREEN.padding + (3 * CARD_INFO.height) / 4,
+  y: SCREEN.height / 2 + SCREEN.lobby + SCREEN.padding + (3 * CARD.height) / 4,
   x1: SCREEN.padding,
-  y1: SCREEN.height / 2 - SCREEN.lobby - SCREEN.padding - (2 * 3 * CARD_INFO.height) / 4,
-  width: (3 * CARD_INFO.width) / 4,
-  height: (3 * CARD_INFO.height) / 4,
+  y1: SCREEN.height / 2 - SCREEN.lobby - SCREEN.padding - (2 * 3 * CARD.height) / 4,
+  width: (3 * CARD.width) / 4,
+  height: (3 * CARD.height) / 4,
   bg: 'blue',
 };
 
@@ -33,9 +33,9 @@ export const GRAVE = {
   x: SCREEN.padding,
   y: SCREEN.height / 2 + SCREEN.lobby,
   x1: SCREEN.padding,
-  y1: SCREEN.height / 2 - SCREEN.lobby - (3 * CARD_INFO.height) / 4,
-  width: (3 * CARD_INFO.width) / 4,
-  height: (3 * CARD_INFO.height) / 4,
+  y1: SCREEN.height / 2 - SCREEN.lobby - (3 * CARD.height) / 4,
+  width: (3 * CARD.width) / 4,
+  height: (3 * CARD.height) / 4,
   bg: 'grey',
 };
 
@@ -59,7 +59,7 @@ export const USE_EFFECT_BUTTON = {
 
 export const HAND_CARDS = {
   x: SCREEN.padding * 2 + DECK.width,
-  y: SCREEN.height - 5 - CARD_INFO.height,
+  y: SCREEN.height - 5 - CARD.height,
   spaceBetweenCard: 10,
   bg: '',
 };
@@ -73,28 +73,6 @@ export const FIELD_CARDS = {
 
 export const OPPONENT_FIELD_CARDS = {
   x: SCREEN.padding + 120,
-  y: SCREEN.height / 2 - CARD_INFO.height - SCREEN.padding - SCREEN.lobby,
+  y: SCREEN.height / 2 - CARD.height - SCREEN.padding - SCREEN.lobby,
   bg: '',
-};
-
-export const INFO_VIEW = {
-  x: SCREEN.width - 150,
-  y: 0,
-  width: 150,
-  height: SCREEN.height,
-  bg: 'rgb(157,155,137,1)',
-  player: {
-    x: SCREEN.width - 150,
-    y: SCREEN.height - 100,
-    width: 150,
-    height: 50,
-    bg: 'white',
-  },
-  opponent: {
-    x: SCREEN.width - 150,
-    y: 10,
-    width: 150,
-    height: 50,
-    bg: 'white',
-  },
 };

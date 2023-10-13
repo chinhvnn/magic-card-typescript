@@ -1,12 +1,11 @@
-import { ATK_BUTTON, CARD_INFO, CHANGE_POSITION_BUTTON, USE_EFFECT_BUTTON } from '../../constant';
+import { ATK_BUTTON, CARD, CHANGE_POSITION_BUTTON, USE_EFFECT_BUTTON } from '../../constant/constant';
 import { IAction } from '../../types';
 
 export const getActionMenuCoordinate = (action: IAction) => {
   let attackBtn = { x: 0, y: 0 };
   let changePositionBtn = { x: 0, y: 0 };
   let useEffectBtn = { x: 0, y: 0 };
-  let yPlus: number =
-    action && action.payload.position === 'def' ? -(CARD_INFO.height - CARD_INFO.width) / 2 : 0;
+  let yPlus: number = action && action.payload.position === 'def' ? -(CARD.height - CARD.width) / 2 : 0;
 
   if (action.payload) {
     attackBtn = { x: action.payload?.x, y: action?.payload?.y - 35 + yPlus };

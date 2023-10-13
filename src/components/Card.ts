@@ -1,17 +1,17 @@
-import { CARD_INFO, SCREEN } from '../constant';
+import { CARD, SCREEN } from '../constant/constant';
 import { TCardPosition, IAction, IEffect } from '../types';
 
 export default class Card {
   public id: number;
   public x: number = 0;
   public y: number = 0;
-  public width: number = CARD_INFO.width;
-  public height: number = CARD_INFO.height;
+  public width: number = CARD.width;
+  public height: number = CARD.height;
   public position: TCardPosition;
   public atk: number;
   public def: number;
   public effect: IEffect;
-  public description: string = '';
+  public description: string = 'des';
   public attribute: string = '';
 
   constructor(id: number, atk: number, def: number, effect: IEffect, position: TCardPosition) {
@@ -33,23 +33,23 @@ export default class Card {
     playerType: string,
     action?: IAction,
   ): void {
-    let bgWidth = CARD_INFO.width - 2;
-    let bgHeight = CARD_INFO.height - 2;
-    let cardBorderWidth = CARD_INFO.width;
-    let cardBorderHeight = CARD_INFO.height;
-    let imgBorderWidth = CARD_INFO.width - CARD_INFO.space * 2 - 2;
-    let imgBorderHeight = CARD_INFO.imgHeight;
+    let bgWidth = CARD.width - 2;
+    let bgHeight = CARD.height - 2;
+    let cardBorderWidth = CARD.width;
+    let cardBorderHeight = CARD.height;
+    let imgBorderWidth = CARD.width - CARD.space * 2 - 2;
+    let imgBorderHeight = CARD.imgHeight;
 
     if (this.position === 'atk') {
     } else if (this.position === 'def') {
-      x = x - (CARD_INFO.height - CARD_INFO.width) / 2;
-      y = y + (CARD_INFO.height - CARD_INFO.width) / 2;
-      bgWidth = CARD_INFO.height - 2;
-      bgHeight = CARD_INFO.width - 2;
-      cardBorderWidth = CARD_INFO.height;
-      cardBorderHeight = CARD_INFO.width;
-      imgBorderWidth = CARD_INFO.imgHeight;
-      imgBorderHeight = CARD_INFO.width - CARD_INFO.space * 2 - 2;
+      x = x - (CARD.height - CARD.width) / 2;
+      y = y + (CARD.height - CARD.width) / 2;
+      bgWidth = CARD.height - 2;
+      bgHeight = CARD.width - 2;
+      cardBorderWidth = CARD.height;
+      cardBorderHeight = CARD.width;
+      imgBorderWidth = CARD.imgHeight;
+      imgBorderHeight = CARD.width - CARD.space * 2 - 2;
     }
 
     this.x = x;
@@ -76,14 +76,9 @@ export default class Card {
         }
       }
 
-      // // Save point
-      // context.save();
-      // context.translate(400, y);
-      // context.rotate((90 * Math.PI) / 180);
-
       // draw background
       context.beginPath();
-      // context.translate(x + CARD_INFO.width / 2, y + CARD_INFO.height / 2);
+      // context.translate(x + CARD.width / 2, y + CARD.height / 2);
       context.fillStyle = 'white';
       context.fillRect(x, y, bgWidth, bgHeight);
       context.closePath();
@@ -98,20 +93,20 @@ export default class Card {
       // draw card name
       context.beginPath();
       context.fillStyle = 'red';
-      context.font = CARD_INFO.titleFont;
+      context.font = CARD.titleFont;
       context.save();
       if (this.position === 'def') {
-        const xTrans = x + CARD_INFO.space + CARD_INFO.titleHeight / 2;
-        const yTrans = y + CARD_INFO.space + CARD_INFO.titleHeight / 2;
+        const xTrans = x + CARD.space + CARD.titleHeight / 2;
+        const yTrans = y + CARD.space + CARD.titleHeight / 2;
         context.translate(xTrans, yTrans);
         context.rotate(-Math.PI / 2);
         context.translate(-xTrans, -yTrans);
       }
       context.fillText(
         this.id.toString(),
-        x + CARD_INFO.space,
-        y + CARD_INFO.space + CARD_INFO.titleHeight / 2,
-        CARD_INFO.width - CARD_INFO.space * 2,
+        x + CARD.space,
+        y + CARD.space + CARD.titleHeight / 2,
+        CARD.width - CARD.space * 2,
       );
       context.restore();
       context.closePath();
@@ -121,17 +116,17 @@ export default class Card {
       context.save();
       context.strokeStyle = 'black';
       if (this.position === 'def') {
-        const xTrans = x + CARD_INFO.space + (CARD_INFO.width - CARD_INFO.space * 2 - 2) / 2;
-        const yTrans = y + CARD_INFO.space * 2 + CARD_INFO.titleHeight + CARD_INFO.imgHeight / 2 - 10;
+        const xTrans = x + CARD.space + (CARD.width - CARD.space * 2 - 2) / 2;
+        const yTrans = y + CARD.space * 2 + CARD.titleHeight + CARD.imgHeight / 2 - 10;
         context.translate(xTrans, yTrans);
         context.rotate(-Math.PI / 2);
         context.translate(-xTrans, -yTrans);
       }
       context.rect(
-        x + CARD_INFO.space,
-        y + CARD_INFO.space * 2 + CARD_INFO.titleHeight,
-        CARD_INFO.width - CARD_INFO.space * 2 - 2,
-        CARD_INFO.imgHeight,
+        x + CARD.space,
+        y + CARD.space * 2 + CARD.titleHeight,
+        CARD.width - CARD.space * 2 - 2,
+        CARD.imgHeight,
       );
       context.stroke();
       context.restore();
@@ -140,11 +135,11 @@ export default class Card {
       // draw card description
       context.beginPath();
       context.fillStyle = 'red';
-      context.font = CARD_INFO.descFont;
+      context.font = CARD.descFont;
       context.save();
       if (this.position === 'def') {
-        const xTrans = x + 2 + CARD_INFO.width / 2 - 5;
-        const yTrans = y + CARD_INFO.space * 3 + CARD_INFO.titleHeight + CARD_INFO.imgHeight - 45;
+        const xTrans = x + 2 + CARD.width / 2 - 5;
+        const yTrans = y + CARD.space * 3 + CARD.titleHeight + CARD.imgHeight - 45;
         context.translate(xTrans, yTrans);
         context.rotate(-Math.PI / 2);
         context.translate(-xTrans, -yTrans);
@@ -152,14 +147,14 @@ export default class Card {
       context.fillText(
         `ATK: ${this.atk}`,
         x + 2,
-        y + CARD_INFO.space * 3 + CARD_INFO.titleHeight + CARD_INFO.imgHeight + 11 / 2,
-        // CARD_INFO.width - CARD_INFO.space * 2
+        y + CARD.space * 3 + CARD.titleHeight + CARD.imgHeight + 11 / 2,
+        // CARD.width - CARD.space * 2
       );
       context.fillText(
         `DEF: ${this.def}`,
         x + 2,
-        y + CARD_INFO.space * 3 + CARD_INFO.titleHeight + CARD_INFO.imgHeight + 11 / 2 + 12,
-        // CARD_INFO.width - CARD_INFO.space * 2
+        y + CARD.space * 3 + CARD.titleHeight + CARD.imgHeight + 11 / 2 + 12,
+        // CARD.width - CARD.space * 2
       );
       context.restore();
       context.closePath();

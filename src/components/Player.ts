@@ -1,4 +1,12 @@
-import { CARD_INFO, DECK, FIELD_CARDS, GRAVE, HAND_CARDS, OPPONENT_FIELD_CARDS, SCREEN } from '../constant';
+import {
+  CARD,
+  DECK,
+  FIELD_CARDS,
+  GRAVE,
+  HAND_CARDS,
+  OPPONENT_FIELD_CARDS,
+  SCREEN,
+} from '../constant/constant';
 import Card from './Card';
 
 export default class Player {
@@ -109,18 +117,18 @@ export default class Player {
 
     for (let i = 0; i < this.handCards.length; i++) {
       this.handCards[i].drawFaceUpCard(context, x, y, this.playerType, action);
-      x += CARD_INFO.width + HAND_CARDS.spaceBetweenCard;
+      x += CARD.width + HAND_CARDS.spaceBetweenCard;
     }
   }
 
   drawFieldCards(context: CanvasRenderingContext2D, action: any) {
-    let positionSpace = (CARD_INFO.height - CARD_INFO.width) / 2;
+    let positionSpace = (CARD.height - CARD.width) / 2;
     let x = (this.playerType === 'player' ? FIELD_CARDS.x : OPPONENT_FIELD_CARDS.x) + positionSpace;
     let y = (this.playerType === 'player' ? FIELD_CARDS.y : OPPONENT_FIELD_CARDS.y) - positionSpace;
 
     for (let i = 0; i < this.field.length; i++) {
       this.field[i].drawFaceUpCard(context, x, y, this.playerType, action);
-      x += CARD_INFO.height + FIELD_CARDS.spaceBetweenCard;
+      x += CARD.height + FIELD_CARDS.spaceBetweenCard;
     }
   }
 
