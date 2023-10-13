@@ -1,11 +1,4 @@
-import {
-  CARD_INFO,
-  DECK_COORDINATE,
-  FIELD_CARDS_COORDINATE,
-  GRAVE_COORDINATE,
-  HAND_CARDS_COORDINATE,
-  SCREEN_SIZE,
-} from '../constant';
+import { CARD_INFO, DECK, FIELD_CARDS, GRAVE, HAND_CARDS, OPPONENT_FIELD_CARDS, SCREEN } from '../constant';
 import Card from './Card';
 
 export default class Player {
@@ -13,23 +6,21 @@ export default class Player {
   private handCards: Card[] = [];
   private field: Card[] = [];
   private grave: Card[] = [];
-  private deck: Card[] = [
-    new Card(1),
-    new Card(2),
-    new Card(3),
-    new Card(4),
-    new Card(5),
-    new Card(6),
-    new Card(7),
-    new Card(8),
-    new Card(9),
-  ];
+  private deck: Card[];
+  private score: number = 4000;
 
-  constructor(playerType: string) {
+  constructor(playerType: string, deck: Card[]) {
     this.playerType = playerType;
+    this.deck = deck;
   }
 
-  addToHand(cards: Card[]) {
+  changeScore(damageType: string, damage: number) {
+    if (damageType === 'atk' && damage > 0) {
+      this.score = this.score - damage;
+    }
+  }
+
+  addCardFromDeckToHand(cards: Card[]) {
     // add cards to hand
     this.handCards.push(...cards);
 
@@ -38,6 +29,22 @@ export default class Player {
       for (let j = 0; j < cards.length; j++) {
         if (this.deck[i].id === cards[j].id) {
           this.deck.splice(i, 1);
+          i--;
+          break;
+        }
+      }
+    }
+  }
+
+  removeCardFromFieldToGrave(cards: Card[]) {
+    // add cards to grave
+    this.grave.push(...cards);
+
+    // remove cards in field
+    for (let i = 0; i < this.field.length; i++) {
+      for (let j = 0; j < cards.length; j++) {
+        if (this.field[i].id === cards[j].id) {
+          this.field.splice(i, 1);
           i--;
           break;
         }
@@ -64,6 +71,10 @@ export default class Player {
     }
   }
 
+  getScore(): number {
+    return this.score;
+  }
+
   getDeck(): Card[] {
     return this.deck;
   }
@@ -80,8 +91,8 @@ export default class Player {
     return this.field;
   }
 
-  getOneFieldCard(id: number): Card | undefined {
-    return this.field.find((card) => card.id === id);
+  getOneFieldCard(id: number): Card {
+    return this.field.find((card) => card.id === id) as Card;
   }
 
   getGraveCards(): Card[] {
@@ -89,32 +100,33 @@ export default class Player {
   }
 
   getOneGraveCard(id: number): Card | undefined {
-    return this.grave.find((card) => card.id === id);
+    return this.grave.find((card) => card.id === id) as Card;
   }
 
   drawHandCards(context: CanvasRenderingContext2D, action: any) {
-    let x = HAND_CARDS_COORDINATE.x;
-    let y = HAND_CARDS_COORDINATE.y;
+    let x = HAND_CARDS.x;
+    let y = HAND_CARDS.y;
 
     for (let i = 0; i < this.handCards.length; i++) {
       this.handCards[i].drawFaceUpCard(context, x, y, this.playerType, action);
-      x += CARD_INFO.width + CARD_INFO.spaceBetweenCard;
+      x += CARD_INFO.width + HAND_CARDS.spaceBetweenCard;
     }
   }
 
   drawFieldCards(context: CanvasRenderingContext2D, action: any) {
-    let x = this.playerType === 'player' ? FIELD_CARDS_COORDINATE.x : FIELD_CARDS_COORDINATE.x1;
-    let y = this.playerType === 'player' ? FIELD_CARDS_COORDINATE.y : FIELD_CARDS_COORDINATE.y1;
+    let positionSpace = (CARD_INFO.height - CARD_INFO.width) / 2;
+    let x = (this.playerType === 'player' ? FIELD_CARDS.x : OPPONENT_FIELD_CARDS.x) + positionSpace;
+    let y = (this.playerType === 'player' ? FIELD_CARDS.y : OPPONENT_FIELD_CARDS.y) - positionSpace;
 
     for (let i = 0; i < this.field.length; i++) {
       this.field[i].drawFaceUpCard(context, x, y, this.playerType, action);
-      x += CARD_INFO.width + CARD_INFO.spaceBetweenCard;
+      x += CARD_INFO.height + FIELD_CARDS.spaceBetweenCard;
     }
   }
 
   drawDeck(context: CanvasRenderingContext2D, action: any) {
-    let x = this.playerType === 'player' ? DECK_COORDINATE.x : DECK_COORDINATE.x1;
-    let y = this.playerType === 'player' ? DECK_COORDINATE.y : DECK_COORDINATE.y1;
+    let x = this.playerType === 'player' ? DECK.x : DECK.x1;
+    let y = this.playerType === 'player' ? DECK.y : DECK.y1;
     let borderColor = 'white';
 
     // if has action
@@ -126,21 +138,21 @@ export default class Player {
 
     // draw background
     context.beginPath();
-    context.fillStyle = 'blue';
-    context.fillRect(x, y, DECK_COORDINATE.width - 2, DECK_COORDINATE.height - 2);
+    context.fillStyle = DECK.bg;
+    context.fillRect(x, y, DECK.width - 2, DECK.height - 2);
     context.closePath();
 
     // draw card border
     context.beginPath();
     context.strokeStyle = borderColor;
-    context.rect(x - 1, y - 1, DECK_COORDINATE.width, DECK_COORDINATE.height);
+    context.rect(x - 1, y - 1, DECK.width, DECK.height);
     context.stroke();
     context.closePath();
   }
 
   drawGrave(context: CanvasRenderingContext2D, action: any) {
-    let x = this.playerType === 'player' ? GRAVE_COORDINATE.x : GRAVE_COORDINATE.x1;
-    let y = this.playerType === 'player' ? GRAVE_COORDINATE.y : GRAVE_COORDINATE.y1;
+    let x = this.playerType === 'player' ? GRAVE.x : GRAVE.x1;
+    let y = this.playerType === 'player' ? GRAVE.y : GRAVE.y1;
     let borderColor = 'white';
 
     // if has action
@@ -152,14 +164,14 @@ export default class Player {
 
     // draw background
     context.beginPath();
-    context.fillStyle = 'grey';
-    context.fillRect(x, y, GRAVE_COORDINATE.width - 2, GRAVE_COORDINATE.height - 2);
+    context.fillStyle = GRAVE.bg;
+    context.fillRect(x, y, GRAVE.width - 2, GRAVE.height - 2);
     context.closePath();
 
     // draw card border
     context.beginPath();
     context.strokeStyle = borderColor;
-    context.rect(x - 1, y - 1, GRAVE_COORDINATE.width, GRAVE_COORDINATE.height);
+    context.rect(x - 1, y - 1, GRAVE.width, GRAVE.height);
     context.stroke();
     context.closePath();
   }

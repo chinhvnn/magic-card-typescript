@@ -1,26 +1,21 @@
 import Card from '../components/Card';
 import { CARD_INFO } from '../constant';
 
-export const checkCoordinate = (mouseCoordinate: any, itemCoordinate: any, size: any): boolean => {
+export const checkCoordinate = (mouseCoordinate: any, item: any): boolean => {
   const { x: xMouse, y: yMouse } = mouseCoordinate;
-  const { x: xItem, y: yItem } = itemCoordinate;
-  const { width, height } = size;
+  const { x: xItem, y: yItem, width, height } = item;
 
   if (xMouse >= xItem && xMouse <= xItem + width && yMouse >= yItem && yMouse <= yItem + height) {
     return true;
   } else return false;
 };
 
-export const getSelectedCard = (mouseCoordinate: any, cards: Card[], wrapper: any) => {
-  let selectedCard: any = {};
+export const getSelectedCard = (mouseCoordinate: any, cards: Card[]) => {
+  let selectedCard = {} as Card;
 
-  cards.find((card: Card, index) => {
-    if (checkCoordinate(mouseCoordinate, card, CARD_INFO)) {
-      selectedCard.id = card.id;
-      selectedCard.x = wrapper.x + index * (CARD_INFO.width + CARD_INFO.spaceBetweenCard);
-      selectedCard.y = wrapper.y;
-      return;
-    }
-  });
-  return selectedCard;
+  return (
+    cards.find((card: Card) => {
+      return checkCoordinate(mouseCoordinate, card);
+    }) || selectedCard
+  );
 };

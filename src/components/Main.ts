@@ -1,22 +1,17 @@
-import { IAction, TPlayStatus } from '../types';
-import {
-  CARD_INFO,
-  DECK_COORDINATE,
-  FIELD_CARDS_COORDINATE,
-  FIRE_BUTTON,
-  GRAVE_COORDINATE,
-  HAND_CARDS_COORDINATE,
-  SCREEN_SIZE,
-} from '../constant';
+import { IAction, IEffect, TPlayStatus } from '../types';
+import { DECK, GRAVE, SCREEN } from '../constant';
 import Deck from './Deck';
 import Player from './Player';
 import { checkCoordinate, getSelectedCard } from '../helper/checkCoordinate';
+import { drawViewInfo } from '../helper/draw/drawViewInfo';
+import Card from './Card';
+import { drawActionMenu, getActionMenuCoordinate } from '../helper/draw/drawActionMenu';
 
 export default class Main {
   protected players: Player[] = [];
   protected decks: Deck[] = [];
   protected turn: string;
-  protected action: IAction | null = null;
+  protected action: IAction = { name: 'init', mouseCoordinate: {} };
 
   protected canvas: HTMLCanvasElement;
   protected context: CanvasRenderingContext2D;
@@ -25,15 +20,38 @@ export default class Main {
   constructor(playerNames: string[]) {
     this.playStatus = 'inMenuStartGame';
     this.turn = playerNames[0];
-    for (let i = 0; i < playerNames.length; i++) {
-      this.players.push(new Player(playerNames[i]));
-    }
+    this.players.push(
+      new Player('player', [
+        new Card(1, 100, 100, {} as IEffect, 'def'),
+        new Card(2, 200, 200, {} as IEffect, 'atk'),
+        new Card(3, 300, 300, {} as IEffect, 'atk'),
+        new Card(4, 400, 400, {} as IEffect, 'def'),
+        new Card(5, 500, 500, {} as IEffect, 'def'),
+        new Card(6, 600, 600, {} as IEffect, 'def'),
+        new Card(7, 700, 700, {} as IEffect, 'def'),
+        new Card(8, 800, 800, {} as IEffect, 'def'),
+        new Card(9, 800, 800, {} as IEffect, 'def'),
+      ]),
+    );
+    this.players.push(
+      new Player('computer', [
+        new Card(11, 100, 100, {} as IEffect, 'atk'),
+        new Card(12, 200, 200, {} as IEffect, 'atk'),
+        new Card(13, 300, 300, {} as IEffect, 'atk'),
+        new Card(14, 400, 400, {} as IEffect, 'def'),
+        new Card(15, 500, 500, {} as IEffect, 'atk'),
+        new Card(16, 600, 600, {} as IEffect, 'atk'),
+        new Card(17, 700, 700, {} as IEffect, 'atk'),
+        new Card(18, 800, 800, {} as IEffect, 'atk'),
+        new Card(19, 800, 800, {} as IEffect, 'atk'),
+      ]),
+    );
 
     // initialize canvas 2d render game
     const app = <HTMLElement>document.getElementById('app');
     this.canvas = document.createElement('canvas');
-    this.canvas.height = SCREEN_SIZE.height;
-    this.canvas.width = SCREEN_SIZE.width;
+    this.canvas.height = SCREEN.height;
+    this.canvas.width = SCREEN.width;
     app.appendChild(this.canvas).setAttribute('id', 'canvas-game');
     this.context = <CanvasRenderingContext2D>this.canvas.getContext('2d');
 
@@ -48,7 +66,7 @@ export default class Main {
     this.playStatus = 'inGame';
 
     // player
-    this.players[0].addToHand([
+    this.players[0].addCardFromDeckToHand([
       this.players[0].getDeck()[0],
       this.players[0].getDeck()[1],
       this.players[0].getDeck()[2],
@@ -59,18 +77,27 @@ export default class Main {
       // this.players[0].getFieldDeck()[7],
     ]);
     this.players[0].playOneCard(1);
+    console.log('111 player', this.players[0]);
 
     // computer
-    this.players[1].addToHand([
+
+    this.players[1].addCardFromDeckToHand([
       this.players[1].getDeck()[0],
       this.players[1].getDeck()[1],
       this.players[1].getDeck()[2],
       this.players[1].getDeck()[3],
+      this.players[1].getDeck()[4],
+      this.players[1].getDeck()[5],
     ]);
-    this.players[1].playOneCard(1);
+    this.players[1].playOneCard(11);
+    this.players[1].playOneCard(12);
+    this.players[1].playOneCard(13);
+    this.players[1].playOneCard(14);
+    this.players[1].playOneCard(15);
+    console.log('111 computer', this.players[1]);
 
     // draw game
-    this.drawGame();
+    this.drawGame({ name: 'init', mouseCoordinate: {} });
   }
 
   /*----------------------------------------------------------------*
@@ -86,30 +113,55 @@ export default class Main {
   }
 
   /*----------------------------------------------------------------*
+   * Action game
+   *----------------------------------------------------------------*/
+  cardAttack(id: number, targetId: number, player: Player, opponent: Player) {
+    const card: Card = player.getOneFieldCard(id);
+    const target: Card = opponent.getOneFieldCard(targetId);
+
+    if (card && target) {
+      if (target.position === 'def') {
+        let defDamage = card.atk - target.def;
+        if (defDamage < 0) {
+          player.changeScore('atk', defDamage * -1);
+          player.removeCardFromFieldToGrave([card]);
+        } else if (defDamage > 0) {
+          opponent.removeCardFromFieldToGrave([target]);
+        }
+      } else if (target.position === 'atk') {
+        let atkDamage = card.atk - target.atk;
+        if (atkDamage === 0) {
+          player.removeCardFromFieldToGrave([card]);
+          opponent.removeCardFromFieldToGrave([target]);
+        } else if (atkDamage > 0) {
+          opponent.removeCardFromFieldToGrave([target]);
+          opponent.changeScore('atk', atkDamage);
+        } else {
+          player.removeCardFromFieldToGrave([card]);
+          player.changeScore('atk', atkDamage * -1);
+        }
+      }
+    }
+  }
+
+  /*----------------------------------------------------------------*
    * Draw/Update game
    *----------------------------------------------------------------*/
-  public drawGame(action?: IAction) {
+  public drawGame(action: IAction) {
     // clear before rerender
     this.clear();
 
     // draw background game
     this.context.beginPath();
-    this.context.fillStyle = 'rgba(30, 30, 30, 1)';
+    this.context.fillStyle = SCREEN.bg;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.closePath();
 
+    // draw view info game
+    drawViewInfo(this.context, this.players[0], this.players[1], action);
+
     // draw action menu
-    if (action?.name === 'click-hand-card' || action?.name === 'click-field-card') {
-      const actionMenu = { x: action.payload.x, y: action?.payload.y - 35 };
-      this.context.beginPath();
-      this.context.fillStyle = 'white';
-      this.context.fillRect(actionMenu.x, actionMenu.y, FIRE_BUTTON.width, FIRE_BUTTON.height);
-      this.context.closePath();
-      this.context.beginPath();
-      this.context.fillStyle = 'red';
-      this.context.fillText('OK', actionMenu.x + 8, actionMenu.y + 18, FIRE_BUTTON.width);
-      this.context.closePath();
-    }
+    drawActionMenu(this.context, action);
 
     // draw player item
     this.players[0].drawHandCards(this.context, action);
@@ -127,63 +179,90 @@ export default class Main {
    * Check play action
    *----------------------------------------------------------------*/
   public checkPlayAction(e: MouseEvent) {
-    let xMouse = e.clientX - (window.innerWidth - SCREEN_SIZE.width) / 2;
-    let yMouse = e.clientY - (window.innerHeight - SCREEN_SIZE.height - 53) / 2;
+    let xMouse = e.clientX - (window.innerWidth - SCREEN.width) / 2;
+    let yMouse = e.clientY - (window.innerHeight - SCREEN.height - 53) / 2;
     let mouseCoordinate = { x: xMouse, y: yMouse };
     let nextAction: IAction = { name: '', mouseCoordinate, payload: {} };
-    // if (!this.action) {
-    //   this.action = nextAction;
-    //   return;
-    // }
+    const selectedHandCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getHandCards());
+    const selectedFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getFieldCards());
+    const selectedOpponentFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[1].getFieldCards());
 
     //check click deck
-    if (checkCoordinate(mouseCoordinate, DECK_COORDINATE, DECK_COORDINATE)) {
+    if (checkCoordinate(mouseCoordinate, DECK)) {
       nextAction.name = 'click-deck';
-      nextAction.payload.x = DECK_COORDINATE.x;
-      nextAction.payload.y = DECK_COORDINATE.y;
+      nextAction.payload.x = DECK.x;
+      nextAction.payload.y = DECK.y;
     }
 
     //check click grave
-    if (checkCoordinate(mouseCoordinate, GRAVE_COORDINATE, GRAVE_COORDINATE)) {
+    if (checkCoordinate(mouseCoordinate, GRAVE)) {
       nextAction.name = 'click-grave';
-      nextAction.payload.x = GRAVE_COORDINATE.x;
-      nextAction.payload.y = GRAVE_COORDINATE.y;
+      nextAction.payload.x = GRAVE.x;
+      nextAction.payload.y = GRAVE.y;
     }
 
     //check click hand cards
-    const selectHandCard: any = getSelectedCard(
-      mouseCoordinate,
-      this.players[0].getHandCards(),
-      HAND_CARDS_COORDINATE,
-    );
-    if (selectHandCard?.id) {
+    if (selectedHandCard?.id) {
       nextAction.name = 'click-hand-card';
-      nextAction.payload.id = selectHandCard.id;
-      nextAction.payload.x = selectHandCard.x;
-      nextAction.payload.y = selectHandCard.y;
+      nextAction.payload = selectedHandCard;
     }
 
     //check click field cards
-    const selectFieldCard: any = getSelectedCard(
-      mouseCoordinate,
-      this.players[0].getFieldCards(),
-      FIELD_CARDS_COORDINATE,
-    );
-    if (selectFieldCard?.id) {
+    if (selectedFieldCard?.id) {
       nextAction.name = 'click-field-card';
-      nextAction.payload.id = selectFieldCard.id;
-      nextAction.payload.x = selectFieldCard.x;
-      nextAction.payload.y = selectFieldCard.y;
+      nextAction.payload = selectedFieldCard;
     }
 
-    //check click button summon card
-    const actionMenu = { x: this.action?.payload.x, y: this.action?.payload.y - 35 };
-    if (checkCoordinate(mouseCoordinate, actionMenu, FIRE_BUTTON)) {
-      if (this.action && this.action.name === 'click-hand-card') {
-        this.players[0].playOneCard(this.action.payload.id);
+    //check click opponent card
+    if (selectedOpponentFieldCard?.id) {
+      if (this.action?.name === 'click-attack') {
+        nextAction.name = 'click-opponent-field-card';
+        nextAction.payload.id = selectedOpponentFieldCard.id;
+
+        //calculator atk
+        this.cardAttack(
+          this.action.payload.id,
+          selectedOpponentFieldCard.id,
+          this.players[0],
+          this.players[1],
+        );
       }
-      if (this.action && this.action.name === 'click-field-card') {
-        // click to another card to fire
+    }
+
+    // check click button action card
+    if (this.action && (this.action.name === 'click-hand-card' || this.action.name === 'click-field-card')) {
+      const { attackBtn, changePositionBtn, useEffectBtn } = getActionMenuCoordinate(this.action);
+
+      // atk
+      if (checkCoordinate(mouseCoordinate, attackBtn)) {
+        if (this.action.name === 'click-hand-card') {
+          this.players[0].playOneCard(this.action.payload.id);
+        }
+        if (this.action && this.action.name === 'click-field-card') {
+          if (this.action.payload.position === 'atk') {
+            nextAction.name = 'click-attack';
+          }
+          nextAction.payload = this.action.payload;
+        }
+      }
+
+      // change position
+      if (checkCoordinate(mouseCoordinate, changePositionBtn)) {
+        if (this.action.name === 'click-field-card') {
+          nextAction.name = 'click-change-position';
+          nextAction.payload = this.action.payload;
+
+          const position = this.action.payload.position === 'atk' ? 'def' : 'atk';
+          this.action.payload.changePosition(position);
+        }
+      }
+
+      // use card effect
+      if (checkCoordinate(mouseCoordinate, useEffectBtn)) {
+        if (this.action && this.action.name === 'click-field-card' && this.action.payload.effect?.id) {
+          nextAction.name = 'click-use-effect';
+          nextAction.payload = this.action.payload;
+        }
       }
     }
 
