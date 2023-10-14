@@ -1,4 +1,12 @@
-import { ATK_BUTTON, CARD, CHANGE_POSITION_BUTTON, USE_EFFECT_BUTTON } from '../../constant/constant';
+import {
+  ATK_BUTTON,
+  CARD,
+  CHANGE_POSITION_BUTTON,
+  USE_EFFECT_BUTTON,
+  MAGIC_BUTTON,
+  CARD_MAGIC_ZONE,
+} from '../../constant/constant';
+import { drawFillCircle, drawFillRect, drawFillText } from '../../helper/draw';
 import { IAction } from '../../types';
 
 export const getActionMenuCoordinate = (action: IAction) => {
@@ -22,51 +30,82 @@ export const getActionMenuCoordinate = (action: IAction) => {
   };
 };
 
+export const getMagicMenuCoordinate = (action: IAction) => {
+  let magicBtn = { x: 0, y: 0 };
+
+  if (action.payload) {
+    magicBtn = {
+      x: action.payload?.x + 3,
+      y: action?.payload?.y + 10,
+    };
+    // magicBtn = {
+    //   x: action.payload?.x + CARD_MAGIC_ZONE.width / 2 - 1,
+    //   y: action?.payload?.y + CARD_MAGIC_ZONE.height / 2 - 1,
+    // };
+  }
+  return {
+    magicBtn: { ...MAGIC_BUTTON, ...magicBtn },
+  };
+};
+
 export const drawActionMenu = (context: CanvasRenderingContext2D, action?: IAction) => {
   if (action?.name === 'click-hand-card' || action?.name === 'click-field-card') {
     const { attackBtn, changePositionBtn, useEffectBtn } = getActionMenuCoordinate(action);
 
-    let text = '';
+    let textBtn1 = '';
     if (action.name === 'click-hand-card') {
-      text = 'Summon';
+      if (action.payload.type === 'monster') {
+        textBtn1 = 'Summon';
+      }
+      if (action.payload.type === 'effect') {
+        textBtn1 = 'Use Effect';
+      }
     }
     if (action.name === 'click-field-card') {
       if (action.payload.position === 'atk') {
-        text = 'Attack';
+        textBtn1 = 'Attack';
       }
     }
 
-    // Atk button
+    let textBtn2 = '';
+    if (action.name === 'click-hand-card') {
+      textBtn2 = 'Set';
+    }
+    if (action.name === 'click-field-card') {
+      textBtn2 = action.payload.face === 'up' ? 'Change pos' : 'Face up';
+    }
+
+    // Summon/Atk/Use effect button
     context.beginPath();
     context.fillStyle = ATK_BUTTON.bg;
     context.fillRect(attackBtn.x, attackBtn.y, ATK_BUTTON.width, ATK_BUTTON.height);
     context.closePath();
     context.beginPath();
     context.fillStyle = 'red';
-    context.fillText(text, attackBtn.x + 8, attackBtn.y + 18, ATK_BUTTON.width - 16);
+    context.fillText(textBtn1, attackBtn.x + 8, attackBtn.y + 18, ATK_BUTTON.width - 16);
+    context.closePath();
+
+    // Change pos button
+    context.beginPath();
+    context.fillStyle = CHANGE_POSITION_BUTTON.bg;
+    context.fillRect(
+      changePositionBtn.x,
+      changePositionBtn.y,
+      CHANGE_POSITION_BUTTON.width,
+      CHANGE_POSITION_BUTTON.height,
+    );
+    context.closePath();
+    context.beginPath();
+    context.fillStyle = 'red';
+    context.fillText(
+      textBtn2,
+      changePositionBtn.x + 8,
+      changePositionBtn.y + 18,
+      CHANGE_POSITION_BUTTON.width - 16,
+    );
     context.closePath();
 
     if (action.name === 'click-field-card') {
-      // Change pos button
-      context.beginPath();
-      context.fillStyle = CHANGE_POSITION_BUTTON.bg;
-      context.fillRect(
-        changePositionBtn.x,
-        changePositionBtn.y,
-        CHANGE_POSITION_BUTTON.width,
-        CHANGE_POSITION_BUTTON.height,
-      );
-      context.closePath();
-      context.beginPath();
-      context.fillStyle = 'red';
-      context.fillText(
-        'Change pos',
-        changePositionBtn.x + 8,
-        changePositionBtn.y + 18,
-        CHANGE_POSITION_BUTTON.width - 16,
-      );
-      context.closePath();
-
       // Use effect button
       if (action.payload?.effect?.id) {
         context.beginPath();
@@ -79,5 +118,19 @@ export const drawActionMenu = (context: CanvasRenderingContext2D, action?: IActi
         context.closePath();
       }
     }
+  }
+};
+export const drawMagicActionMenu = (context: CanvasRenderingContext2D, action?: IAction) => {
+  if (action?.name === 'click-magic-card') {
+    const { magicBtn } = getMagicMenuCoordinate(action);
+    drawFillRect(context, magicBtn);
+    drawFillText(context, { ...magicBtn, x: magicBtn.x + 2, y: magicBtn.y + 20, fillStyle: 'red' }, 'Active');
+    // drawFillCircle(context, magicBtn);
+    // context.beginPath();
+    // context.fillStyle = 'red';
+    // context.font = '12px Arial';
+    // context.save();
+    // context.fillText('Active', magicBtn.x - magicBtn.radius / 2 - 3, magicBtn.y + 3, magicBtn.radius + 8);
+    // context.closePath();
   }
 };

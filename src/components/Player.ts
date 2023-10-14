@@ -4,20 +4,25 @@ import {
   FIELD_CARDS,
   GRAVE,
   HAND_CARDS,
+  MAGIC,
   OPPONENT_FIELD_CARDS,
-  SCREEN,
+  OPPONENT_HAND_CARDS,
+  OPPONENT_MAGIC,
 } from '../constant/constant';
+import { drawRect } from '../helper/draw';
+import { IPlayerType, TCardFace, TCardPlace, TCardPosition } from '../types';
 import Card from './Card';
 
 export default class Player {
-  protected playerType: string;
+  protected playerType: IPlayerType;
   private handCards: Card[] = [];
   private field: Card[] = [];
+  private magicZone: Card[] = [];
   private grave: Card[] = [];
   private deck: Card[];
   private score: number = 4000;
 
-  constructor(playerType: string, deck: Card[]) {
+  constructor(playerType: IPlayerType, deck: Card[]) {
     this.playerType = playerType;
     this.deck = deck;
   }
@@ -60,22 +65,68 @@ export default class Player {
     }
   }
 
-  playOneCard(id: number) {
-    console.log('111 playOneCard');
+  playOneCard(id: number, face: TCardFace, position: TCardPosition, from: TCardPlace, goTo: TCardPlace) {
+    let goToPlace, card, fromPlace;
 
-    // get card from hand cards
-    const card = this.getOneHandCard(id);
+    switch (goTo) {
+      case 'deck':
+        goToPlace = this.deck;
+        break;
+      case 'hand':
+        goToPlace = this.handCards;
+        break;
+      case 'field':
+        goToPlace = this.field;
+        break;
+      case 'grave':
+        goToPlace = this.grave;
+        break;
+      case 'magic-zone':
+        goToPlace = this.magicZone;
+        break;
 
-    if (card) {
+      default:
+        break;
+    }
+
+    switch (from) {
+      case 'deck':
+        // card = this.getOnDeckCard(id);
+        break;
+      case 'hand':
+        card = this.getOneHandCard(id);
+        fromPlace = this.handCards;
+        break;
+      case 'field':
+        card = this.getOneFieldCard(id);
+        fromPlace = this.field;
+        break;
+      case 'grave':
+        card = this.getOneGraveCard(id);
+        fromPlace = this.grave;
+        break;
+      case 'magic-zone':
+        // card = this.getOneMagicCard(id);
+        break;
+
+      default:
+        break;
+    }
+
+    if (card && goToPlace && fromPlace) {
       // add card to field
-      this.field.push(card);
+      card.setFace(face);
+      card.changePosition(position);
+      goToPlace.push(card);
+
       // remove card in hand
-      for (let i = 0; i < this.handCards.length; i++) {
-        if (this.handCards[i].id === card.id) {
-          this.handCards.splice(i, 1);
+      for (let i = 0; i < fromPlace.length; i++) {
+        if (fromPlace[i].id === card.id) {
+          fromPlace.splice(i, 1);
           i--;
         }
       }
+      console.log('111 playOneCard', id, card, this.field);
     }
   }
 
@@ -99,6 +150,10 @@ export default class Player {
     return this.field;
   }
 
+  getMagicCards(): Card[] {
+    return this.magicZone;
+  }
+
   getOneFieldCard(id: number): Card {
     return this.field.find((card) => card.id === id) as Card;
   }
@@ -112,12 +167,14 @@ export default class Player {
   }
 
   drawHandCards(context: CanvasRenderingContext2D, action: any) {
-    let x = HAND_CARDS.x;
-    let y = HAND_CARDS.y;
+    let x = this.playerType === 'player' ? HAND_CARDS.x : OPPONENT_HAND_CARDS.x;
+    let y = this.playerType === 'player' ? HAND_CARDS.y : OPPONENT_HAND_CARDS.y;
+    let space =
+      this.playerType === 'player' ? HAND_CARDS.spaceBetweenCard : OPPONENT_HAND_CARDS.spaceBetweenCard;
 
     for (let i = 0; i < this.handCards.length; i++) {
-      this.handCards[i].drawFaceUpCard(context, x, y, this.playerType, action);
-      x += CARD.width + HAND_CARDS.spaceBetweenCard;
+      this.handCards[i].drawCard(context, x, y, this.playerType, 'hand', action);
+      x += CARD.width + space;
     }
   }
 
@@ -125,10 +182,12 @@ export default class Player {
     let positionSpace = (CARD.height - CARD.width) / 2;
     let x = (this.playerType === 'player' ? FIELD_CARDS.x : OPPONENT_FIELD_CARDS.x) + positionSpace;
     let y = (this.playerType === 'player' ? FIELD_CARDS.y : OPPONENT_FIELD_CARDS.y) - positionSpace;
+    let space =
+      this.playerType === 'player' ? FIELD_CARDS.spaceBetweenCard : OPPONENT_FIELD_CARDS.spaceBetweenCard;
 
     for (let i = 0; i < this.field.length; i++) {
-      this.field[i].drawFaceUpCard(context, x, y, this.playerType, action);
-      x += CARD.height + FIELD_CARDS.spaceBetweenCard;
+      this.field[i].drawCard(context, x, y, this.playerType, 'field', action);
+      x += CARD.height + space;
     }
   }
 
@@ -182,5 +241,30 @@ export default class Player {
     context.rect(x - 1, y - 1, GRAVE.width, GRAVE.height);
     context.stroke();
     context.closePath();
+  }
+
+  drawMagic(context: CanvasRenderingContext2D, action: any) {
+    let borderColor = 'white';
+    let magic = this.playerType === 'player' ? MAGIC : OPPONENT_MAGIC;
+
+    const magic2 = { ...magic, x: magic.x - magic.width - 10 };
+    const magic3 = { ...magic, y: magic.y + magic.height + 10 };
+    const env = { ...magic2, y: magic2.y + magic2.height + 10 };
+
+    // Draw grid
+    drawRect(context, magic);
+    drawRect(context, magic2);
+    drawRect(context, magic3);
+    drawRect(context, env);
+
+    // Draw card
+    this.magicZone[0] &&
+      this.magicZone[0].drawCard(context, magic.x + 1, magic.y + 1, this.playerType, 'magic-zone', action);
+    this.magicZone[1] &&
+      this.magicZone[1].drawCard(context, magic2.x + 1, magic2.y + 1, this.playerType, 'magic-zone', action);
+    this.magicZone[2] &&
+      this.magicZone[2].drawCard(context, magic3.x + 1, magic3.y + 1, this.playerType, 'magic-zone', action);
+
+    console.log('111', this.magicZone);
   }
 }

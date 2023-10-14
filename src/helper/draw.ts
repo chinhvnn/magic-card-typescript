@@ -13,6 +13,16 @@ export const drawFillRect = (context: CanvasRenderingContext2D, item: any) => {
   context.closePath();
 };
 
+export const drawFillCircle = (context: CanvasRenderingContext2D, item: any) => {
+  const { x, y, radius, startAngle, endAngle, fillStyle } = item;
+
+  context.beginPath();
+  context.fillStyle = fillStyle;
+  context.arc(x, y, radius, startAngle, endAngle);
+  context.fill();
+  context.closePath();
+};
+
 export const drawFillText = (context: CanvasRenderingContext2D, item: any, text: string | number) => {
   const { x, y, maxWidth, font, fillStyle, textAlign } = item;
 
