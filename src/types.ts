@@ -8,7 +8,8 @@ export type TCardType = 'monster' | 'effect' | 'trap';
 export type TCardPlace = 'deck' | 'grave' | 'hand' | 'magic-zone' | 'field';
 export type TActionType = null | 'card' | 'deck' | 'grave' | 'action-menu';
 export type TEffect = 'power' | 'heal';
-export type IPlayerType = 'player' | 'opponent';
+export type TPlayerType = 'player' | 'opponent';
+export type TPlayerPhase = 'main' | 'attack' | 'waiting';
 export type TPlayerAction =
   | ''
   | 'init'
@@ -21,11 +22,13 @@ export type TPlayerAction =
   | 'click-ok'
   | 'click-attack'
   | 'click-attack-opponent-field-card'
+  | 'click-attack-opponent-directly'
   | 'click-change-position'
   | 'click-change-face'
   | 'click-set-magic-card'
   | 'click-set-monster-card'
-  | 'click-use-effect';
+  | 'click-use-effect'
+  | 'click-next-phase';
 
 export interface IAction {
   name: TPlayerAction;

@@ -7,7 +7,7 @@ import {
   CARD_MAGIC_ZONE,
 } from '../../constant/constant';
 import { drawFillCircle, drawFillRect, drawFillText } from '../../helper/draw';
-import { IAction } from '../../types';
+import { IAction, TPlayerPhase } from '../../types';
 
 export const getActionMenuCoordinate = (action: IAction) => {
   let attackBtn = { x: 0, y: 0 };
@@ -48,8 +48,11 @@ export const getMagicMenuCoordinate = (action: IAction) => {
   };
 };
 
-export const drawActionMenu = (context: CanvasRenderingContext2D, action?: IAction) => {
-  if (action?.name === 'click-hand-card' || action?.name === 'click-field-card') {
+export const drawActionMenu = (context: CanvasRenderingContext2D, phase: TPlayerPhase, action?: IAction) => {
+  if (
+    (action?.name === 'click-field-card' && phase === 'attack') ||
+    (action?.name === 'click-hand-card' && phase === 'main')
+  ) {
     const { attackBtn, changePositionBtn, useEffectBtn } = getActionMenuCoordinate(action);
 
     let textBtn1 = '';
@@ -76,40 +79,31 @@ export const drawActionMenu = (context: CanvasRenderingContext2D, action?: IActi
     }
 
     // Summon/Atk/Use effect button
-    context.beginPath();
-    context.fillStyle = ATK_BUTTON.bg;
-    context.fillRect(attackBtn.x, attackBtn.y, ATK_BUTTON.width, ATK_BUTTON.height);
-    context.closePath();
-    context.beginPath();
-    context.fillStyle = 'red';
-    context.fillText(textBtn1, attackBtn.x + 8, attackBtn.y + 18, ATK_BUTTON.width - 16);
-    context.closePath();
+    drawFillRect(context, attackBtn);
+    drawFillText(
+      context,
+      { x: attackBtn.x + 6, y: attackBtn.y + 16, maxWidth: ATK_BUTTON.width - 16, fillStyle: 'red' },
+      textBtn1,
+    );
 
     // Change pos button
-    context.beginPath();
-    context.fillStyle = CHANGE_POSITION_BUTTON.bg;
-    context.fillRect(
-      changePositionBtn.x,
-      changePositionBtn.y,
-      CHANGE_POSITION_BUTTON.width,
-      CHANGE_POSITION_BUTTON.height,
-    );
-    context.closePath();
-    context.beginPath();
-    context.fillStyle = 'red';
-    context.fillText(
+    drawFillRect(context, changePositionBtn);
+    drawFillText(
+      context,
+      {
+        x: changePositionBtn.x + 6,
+        y: changePositionBtn.y + 16,
+        maxWidth: CHANGE_POSITION_BUTTON.width - 16,
+        fillStyle: 'red',
+      },
       textBtn2,
-      changePositionBtn.x + 8,
-      changePositionBtn.y + 18,
-      CHANGE_POSITION_BUTTON.width - 16,
     );
-    context.closePath();
 
     if (action.name === 'click-field-card') {
       // Use effect button
-      if (action.payload?.effect?.id) {
+      if (action.payload?.effect?.idWithDeck) {
         context.beginPath();
-        context.fillStyle = USE_EFFECT_BUTTON.bg;
+        context.fillStyle = USE_EFFECT_BUTTON.fillStyle;
         context.fillRect(useEffectBtn.x, useEffectBtn.y, USE_EFFECT_BUTTON.width, USE_EFFECT_BUTTON.height);
         context.closePath();
         context.beginPath();
@@ -120,17 +114,14 @@ export const drawActionMenu = (context: CanvasRenderingContext2D, action?: IActi
     }
   }
 };
-export const drawMagicActionMenu = (context: CanvasRenderingContext2D, action?: IAction) => {
-  if (action?.name === 'click-magic-card') {
+export const drawMagicActionMenu = (
+  context: CanvasRenderingContext2D,
+  phase: TPlayerPhase,
+  action?: IAction,
+) => {
+  if (action?.name === 'click-magic-card' && phase !== 'waiting') {
     const { magicBtn } = getMagicMenuCoordinate(action);
     drawFillRect(context, magicBtn);
     drawFillText(context, { ...magicBtn, x: magicBtn.x + 2, y: magicBtn.y + 20, fillStyle: 'red' }, 'Active');
-    // drawFillCircle(context, magicBtn);
-    // context.beginPath();
-    // context.fillStyle = 'red';
-    // context.font = '12px Arial';
-    // context.save();
-    // context.fillText('Active', magicBtn.x - magicBtn.radius / 2 - 3, magicBtn.y + 3, magicBtn.radius + 8);
-    // context.closePath();
   }
 };

@@ -1,8 +1,9 @@
-import { CARD, CARD_MAGIC_ZONE, SCREEN } from '../constant/constant';
-import { TCardPosition, IAction, IEffect, IPlayerType, TCardType, TCardFace, TCardPlace } from '../types';
+import { CARD, CARD_MAGIC_ZONE, SELECTED } from '../constant/constant';
+import { TCardPosition, IAction, IEffect, TPlayerType, TCardType, TCardFace, TCardPlace } from '../types';
 
 export default class Card {
   public id: number;
+  public idWithDeck: string = '';
   public x: number = 0;
   public y: number = 0;
   public width: number = CARD.width;
@@ -15,6 +16,8 @@ export default class Card {
   public effect: IEffect;
   public description: string = 'des';
   public attribute: string = '';
+  public actionCount: any = { atk: 0, useEffect: 0 };
+  public place?: TCardPlace;
 
   constructor(
     id: number,
@@ -42,11 +45,15 @@ export default class Card {
     this.face = face;
   }
 
+  setIdWithDeck(idWithDeck: string) {
+    this.idWithDeck = idWithDeck;
+  }
+
   public drawCard(
     context: CanvasRenderingContext2D,
     x: number,
     y: number,
-    playerType: IPlayerType,
+    playerType: TPlayerType,
     from: TCardPlace,
     action?: IAction,
   ): void {
@@ -57,6 +64,7 @@ export default class Card {
     let cardBorderHeight = card.height;
     let imgBorderWidth = card.width - card.space * 2 - 2;
     let imgBorderHeight = card.imgHeight;
+    this.place = from;
 
     if (this.position === 'atk') {
     } else if (this.position === 'def') {
@@ -76,36 +84,46 @@ export default class Card {
     this.height = cardBorderHeight;
 
     if (context) {
-      let borderColor: string = 'white';
+      let borderColor = 'white';
 
+      // draw background
+      context.beginPath();
+      context.save();
+      // context.translate(x + card.width / 2, y + card.height / 2);
       if (action) {
         if (playerType === 'player') {
           if (
             (action.name === 'click-hand-card' || action.name === 'click-field-card') &&
-            this.id == action.payload.id
+            this.idWithDeck == action.payload.idWithDeck
           ) {
-            borderColor = 'red';
+            context.shadowBlur = 30;
+            context.shadowColor = SELECTED.shadowColor;
+            borderColor = 'blue';
           }
         }
         if (playerType === 'opponent') {
           if (action.name === 'click-attack') {
-            borderColor = 'blue';
+            // check if card in field
+            if (this.place === 'field') {
+              context.shadowBlur = 30;
+              context.shadowColor = 'red';
+              borderColor = 'red';
+            }
           }
         }
       }
-
-      // draw background
-      context.beginPath();
-      // context.translate(x + card.width / 2, y + card.height / 2);
       context.fillStyle = 'white';
       context.fillRect(x, y, bgWidth, bgHeight);
+      context.restore();
       context.closePath();
 
       // draw card border
       context.beginPath();
-      context.strokeStyle = borderColor;
+      context.save();
       context.rect(x - 1, y - 1, cardBorderWidth, cardBorderHeight);
+      context.strokeStyle = borderColor;
       context.stroke();
+      context.restore();
       context.closePath();
 
       if (
@@ -120,12 +138,13 @@ export default class Card {
         if (this.position === 'def') {
           const xTrans = x + card.space + card.titleHeight / 2;
           const yTrans = y + card.space + card.titleHeight / 2;
+          context.textAlign = 'right';
           context.translate(xTrans, yTrans);
           context.rotate(-Math.PI / 2);
           context.translate(-xTrans, -yTrans);
         }
         context.fillText(
-          this.id.toString(),
+          this.idWithDeck.toString(),
           x + card.space,
           y + card.space + card.titleHeight / 2,
           card.width - card.space * 2,

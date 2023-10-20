@@ -23,6 +23,13 @@ export const INFO_PLAYER_SCORE = {
   fillStyle: 'red',
 };
 
+export const INFO_PLAYER_PHASE = {
+  x: INFO_PLAYER_SCORE.x,
+  y: INFO_PLAYER_SCORE.y + 18,
+  font: 'bold 14px Arial',
+  fillStyle: 'blue',
+};
+
 export const INFO_OPPONENT = {
   x: INFO_VIEW.x,
   y: INFO_VIEW.y + 10,
@@ -36,6 +43,12 @@ export const INFO_OPPONENT_SCORE = {
   y: INFO_OPPONENT.y + 18,
   font: 'bold 14px Arial',
   fillStyle: 'red',
+};
+export const INFO_OPPONENT_PHASE = {
+  x: INFO_OPPONENT_SCORE.x,
+  y: INFO_OPPONENT_SCORE.y + 18,
+  font: 'bold 14px Arial',
+  fillStyle: 'blue',
 };
 
 export const INFO_CARD = {
@@ -97,22 +110,13 @@ export const INFO_PHASE = {
   x: INFO_CARD.x,
   y: INFO_CARD_DES.y + INFO_CARD_DES.height + 10,
   width: INFO_CARD.width,
-  height: 70,
+  height: 60,
   fillStyle: '#D9EAD3',
-};
-
-export const INFO_PHASE_TEXT = {
-  x: INFO_CARD.x + 10,
-  y: INFO_PHASE.y + 20,
-  width: INFO_CARD.width,
-  font: 'bold 14px Arial',
-  fillStyle: 'black',
-  maxWidth: INFO_CARD.width - 10,
 };
 
 export const INFO_PHASE_BTN = {
   x: INFO_CARD.x + 5,
-  y: INFO_PHASE_TEXT.y + 10,
+  y: INFO_PHASE.y + 10,
   width: INFO_PHASE.width - 10,
   height: 35,
   fillStyle: 'white',

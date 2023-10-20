@@ -1,5 +1,5 @@
 const TEXT_DEFAULT = {
-  font: '10px Arial',
+  font: '12px Arial',
   textAlign: 'left',
   fillStyle: 'white',
 };
@@ -8,8 +8,10 @@ export const drawFillRect = (context: CanvasRenderingContext2D, item: any) => {
   const { x, y, width, height, fillStyle } = item;
 
   context.beginPath();
+  context.save();
   context.fillStyle = fillStyle;
   context.fillRect(x, y, width, height);
+  context.restore();
   context.closePath();
 };
 
@@ -17,9 +19,11 @@ export const drawFillCircle = (context: CanvasRenderingContext2D, item: any) => 
   const { x, y, radius, startAngle, endAngle, fillStyle } = item;
 
   context.beginPath();
+  context.save();
   context.fillStyle = fillStyle;
   context.arc(x, y, radius, startAngle, endAngle);
   context.fill();
+  context.restore();
   context.closePath();
 };
 
@@ -27,21 +31,33 @@ export const drawFillText = (context: CanvasRenderingContext2D, item: any, text:
   const { x, y, maxWidth, font, fillStyle, textAlign } = item;
 
   context.beginPath();
+  context.save();
   context.fillStyle = fillStyle || TEXT_DEFAULT.fillStyle;
   context.font = font || TEXT_DEFAULT.font;
-  context.save();
   context.textAlign = textAlign || TEXT_DEFAULT.textAlign;
   context.fillText(text.toString(), x, y, maxWidth);
   context.restore();
   context.closePath();
 };
 
+export const drawShadow = (context: CanvasRenderingContext2D, item: any) => {
+  const { shadowBlur, shadowColor } = item;
+
+  context.beginPath();
+  context.save();
+  context.shadowBlur = shadowBlur;
+  context.shadowColor = shadowColor;
+  context.restore();
+  context.closePath();
+};
 export const drawRect = (context: CanvasRenderingContext2D, item: any) => {
   const { x, y, width, height, strokeStyle, lineHeight } = item;
 
   context.beginPath();
+  context.save();
   context.strokeStyle = strokeStyle;
   context.rect(x, y, width, height);
   context.stroke();
+  context.restore();
   context.closePath();
 };
