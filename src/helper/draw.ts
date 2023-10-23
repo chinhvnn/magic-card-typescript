@@ -4,11 +4,15 @@ const TEXT_DEFAULT = {
   fillStyle: 'white',
 };
 
-export const drawFillRect = (context: CanvasRenderingContext2D, item: any) => {
-  const { x, y, width, height, fillStyle } = item;
+export const drawFillRect = (context: CanvasRenderingContext2D, item: any, hasShadow = false) => {
+  const { x, y, width, height, fillStyle, shadowColor, shadowBlur } = item;
 
   context.beginPath();
   context.save();
+  if (hasShadow) {
+    context.shadowColor = shadowColor;
+    context.shadowBlur = shadowBlur;
+  }
   context.fillStyle = fillStyle;
   context.fillRect(x, y, width, height);
   context.restore();
@@ -40,16 +44,6 @@ export const drawFillText = (context: CanvasRenderingContext2D, item: any, text:
   context.closePath();
 };
 
-export const drawShadow = (context: CanvasRenderingContext2D, item: any) => {
-  const { shadowBlur, shadowColor } = item;
-
-  context.beginPath();
-  context.save();
-  context.shadowBlur = shadowBlur;
-  context.shadowColor = shadowColor;
-  context.restore();
-  context.closePath();
-};
 export const drawRect = (context: CanvasRenderingContext2D, item: any) => {
   const { x, y, width, height, strokeStyle, lineHeight } = item;
 

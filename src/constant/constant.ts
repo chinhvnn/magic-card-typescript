@@ -146,6 +146,8 @@ export const OPPONENT_HAND_CARDS_WRAPPER = {
   height: CARD.height + 10,
   fillStyle: 'grey',
   strokeStyle: '',
+  shadowColor: 'red',
+  shadowBlur: 20,
 };
 
 export const FIELD_CARDS = {

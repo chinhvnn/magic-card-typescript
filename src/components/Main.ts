@@ -1,5 +1,5 @@
-import { IAction, IEffect, TPlayStatus } from '../types';
-import { DECK, GRAVE, OPPONENT_HAND_CARDS, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
+import { IAction, IEffect, TPlayStatus, TPlayerType } from '../types';
+import { DECK, GRAVE, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
 import Deck from './Deck';
 import Player from './Player';
 import { checkCoordinate, getSelectedCard } from '../helper/checkCoordinate';
@@ -16,6 +16,8 @@ import { drawFillRect, drawRect } from '../helper/draw';
 
 export default class Main {
   protected players: Player[] = [];
+  public player: Player;
+  public opponent: Player;
   protected decks: Deck[] = [];
   protected turn: string;
   protected action: IAction = { name: 'init', mouseCoordinate: {}, type: null };
@@ -51,8 +53,10 @@ export default class Main {
     ];
     playerDeck.map((card: Card, index) => card.setIdWithDeck('player-' + card.id + '-' + index));
     opponentDeck.map((card: Card, index) => card.setIdWithDeck('opponent-' + card.id + '-' + index));
-    this.players.push(new Player('player', playerDeck));
-    this.players.push(new Player('opponent', opponentDeck));
+    this.player = new Player('player', playerDeck);
+    this.opponent = new Player('opponent', opponentDeck);
+    this.players.push(this.player);
+    this.players.push(this.opponent);
 
     // initialize canvas 2d render game
     const app = <HTMLElement>document.getElementById('app');
@@ -71,37 +75,35 @@ export default class Main {
    *----------------------------------------------------------------*/
   public start(): void {
     this.playStatus = 'inGame';
-    const player = this.players[0];
-    const opponent = this.players[1];
 
     // player
-    player.setPhase('main');
-    player.addCardFromDeckToHand([
-      player.getDeck()[0],
-      player.getDeck()[1],
-      // player.getDeck()[2],
-      // player.getDeck()[3],
-      // player.getDeck()[4],
-      // player.getDeck()[5],
-      player.getDeck()[6],
-      player.getDeck()[7],
+    this.player.setPhase('main');
+    this.player.addCardFromDeckToHand([
+      this.player.getDeck()[0],
+      this.player.getDeck()[1],
+      // this.player.getDeck()[2],
+      // this.player.getDeck()[3],
+      // this.player.getDeck()[4],
+      // this.player.getDeck()[5],
+      this.player.getDeck()[6],
+      this.player.getDeck()[7],
     ]);
 
     // computer
-    opponent.setPhase('waiting');
-    opponent.addCardFromDeckToHand([
-      opponent.getDeck()[0],
-      opponent.getDeck()[1],
-      opponent.getDeck()[2],
-      opponent.getDeck()[3],
-      opponent.getDeck()[4],
-      opponent.getDeck()[5],
-      opponent.getDeck()[6],
+    this.opponent.setPhase('waiting');
+    this.opponent.addCardFromDeckToHand([
+      this.opponent.getDeck()[0],
+      this.opponent.getDeck()[1],
+      this.opponent.getDeck()[2],
+      this.opponent.getDeck()[3],
+      this.opponent.getDeck()[4],
+      this.opponent.getDeck()[5],
+      this.opponent.getDeck()[6],
     ]);
-    opponent.playOneCard('opponent-2-1', 'up', 'atk', 'hand', 'magic-zone');
-    // opponent.playOneCard(12, 'up', 'hand', 'magic-zone');
-    // opponent.playOneCard(13, 'up', 'hand', 'magic-zone');
-    console.log('111 computer', opponent);
+    this.opponent.playOneCard('opponent-2-1', 'up', 'atk', 'hand', 'magic-zone');
+    // this.opponent.playOneCard(12, 'up', 'hand', 'magic-zone');
+    // this.opponent.playOneCard(13, 'up', 'hand', 'magic-zone');
+    console.log('111 computer', this.opponent);
 
     // draw game
     this.drawGame({ name: 'init', mouseCoordinate: {}, type: null });
@@ -120,10 +122,10 @@ export default class Main {
   }
 
   /*----------------------------------------------------------------*
-   * Action game
+   * Action game: Card attack
    *----------------------------------------------------------------*/
   cardAttack(idWithDeck: string, targetId: string, player: Player, opponent: Player, isDirectly = false) {
-    const card: Card = player.getOneFieldCard(idWithDeck);
+    const card: Card = this.player.getOneFieldCard(idWithDeck);
     const target: Card = opponent.getOneFieldCard(targetId);
 
     if (!card) return;
@@ -132,7 +134,7 @@ export default class Main {
       if (target.position === 'def') {
         let defDamage = card.atk - target.def;
         if (defDamage < 0) {
-          player.changeScore('atk', defDamage * -1);
+          this.player.changeScore('atk', defDamage * -1);
           player.playOneCard(card.idWithDeck, 'up', 'atk', 'field', 'grave');
         } else if (defDamage > 0) {
           opponent.playOneCard(target.idWithDeck, 'up', 'atk', 'field', 'grave');
@@ -158,10 +160,15 @@ export default class Main {
   /*----------------------------------------------------------------*
    * Draw/Update game
    *----------------------------------------------------------------*/
-  public drawGame(action: IAction) {
-    const player = this.players[0];
-    const opponent = this.players[1];
+  public handlePlayTurn(nextTurn: TPlayerType) {
+    if (nextTurn === 'player') {
+    }
+  }
 
+  /*----------------------------------------------------------------*
+   * Draw/Update game
+   *----------------------------------------------------------------*/
+  public drawGame(action: IAction) {
     // clear before rerender
     this.clear();
 
@@ -172,62 +179,66 @@ export default class Main {
     drawViewInfo(this.context, this.players[0], this.players[1], action);
 
     // draw player item
-    player.drawHandCards(this.context, action);
-    player.drawFieldCards(this.context, action);
-    player.drawMagic(this.context, action);
-    player.drawDeck(this.context, action);
-    player.drawGrave(this.context, action);
+    this.player.drawHandCards(this.context, action);
+    this.player.drawFieldCards(this.context, action);
+    this.player.drawMagic(this.context, action);
+    this.player.drawDeck(this.context, action);
+    this.player.drawGrave(this.context, action);
 
     // draw computer item
     console.log('111 action in draw', action);
 
-    drawFillRect(this.context, OPPONENT_HAND_CARDS_WRAPPER);
+    drawFillRect(
+      this.context,
+      OPPONENT_HAND_CARDS_WRAPPER,
+      action.name === 'click-attack' && !this.opponent.getFieldCards().length,
+    );
     drawRect(this.context, {
       ...OPPONENT_HAND_CARDS_WRAPPER,
-      strokeStyle: action.name === 'click-attack' && opponent.getFieldCards().length === 0 ? 'red' : '',
+      strokeStyle: action.name === 'click-attack' && !this.opponent.getFieldCards().length ? 'red' : '',
     });
-    opponent.drawHandCards(this.context, action);
-    opponent.drawFieldCards(this.context, action);
-    opponent.drawMagic(this.context, action);
-    opponent.drawDeck(this.context, action);
-    opponent.drawGrave(this.context, action);
+
+    this.opponent.drawHandCards(this.context, action);
+    this.opponent.drawFieldCards(this.context, action);
+    this.opponent.drawMagic(this.context, action);
+    this.opponent.drawDeck(this.context, action);
+    this.opponent.drawGrave(this.context, action);
 
     // draw action menu
-    if (opponent.getPhase() === 'waiting') {
-      drawActionMenu(this.context, player.getPhase(), action);
-      drawMagicActionMenu(this.context, player.getPhase(), action);
+    if (this.opponent.getPhase() === 'waiting') {
+      drawActionMenu(this.context, this.player.getPhase(), action);
+      drawMagicActionMenu(this.context, this.player.getPhase(), action);
     }
 
     // check opponent player action
-    if (player.getPhase() === 'waiting') {
-      this.autoPlay(opponent, player);
+    if (this.player.getPhase() === 'waiting') {
+      this.autoPlay();
     }
   }
 
   /*----------------------------------------------------------------*
    * Auto play
    *----------------------------------------------------------------*/
-  autoPlay(opponent: Player, player: Player) {
-    console.log('111 autoPlay');
+  autoPlay() {
     setTimeout(() => {
-      if (player.getPhase() === 'waiting' && opponent.getPhase() === 'waiting') {
-        opponent.setPhase('main');
-        if (opponent.getHandCards()[0].idWithDeck) {
-          opponent.playOneCard(opponent.getHandCards()[0].idWithDeck, 'up', 'atk', 'hand', 'field');
+      if (this.player.getPhase() === 'waiting' && this.opponent.getPhase() === 'waiting') {
+        this.opponent.setPhase('main');
+        if (this.opponent.getHandCards()[0].idWithDeck) {
+          this.opponent.playOneCard(this.opponent.getHandCards()[0].idWithDeck, 'up', 'atk', 'hand', 'field');
         }
         this.drawGame(this.action);
         return;
       }
 
-      if (opponent.getPhase() === 'main') {
-        opponent.setPhase('attack');
+      if (this.opponent.getPhase() === 'main') {
+        this.opponent.setPhase('attack');
         this.drawGame(this.action);
         return;
       }
 
-      if (opponent.getPhase() === 'attack') {
-        opponent.setPhase('waiting');
-        player.setPhase('main');
+      if (this.opponent.getPhase() === 'attack') {
+        this.opponent.setPhase('waiting');
+        this.player.setPhase('main');
         this.drawGame(this.action);
         return;
       }
