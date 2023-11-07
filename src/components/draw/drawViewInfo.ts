@@ -27,6 +27,13 @@ export const drawViewInfo = (
   opponent: Player,
   action?: IAction,
 ) => {
+  let phase = 'Next phase';
+  if (player.getPhase() === 'attack') {
+    phase = 'End phase';
+  } else if (player.getPhase() === 'main') {
+    phase = 'Next to Attack phase';
+  }
+
   // Draw wrapper info view
   drawFillRect(context, INFO_VIEW);
 
@@ -64,6 +71,6 @@ export const drawViewInfo = (
   // Button next phase
   if (player.getPhase() !== 'waiting') {
     drawFillRect(context, INFO_PHASE_BTN);
-    drawFillText(context, INFO_PHASE_BTN_TEXT, 'Next Phase');
+    drawFillText(context, INFO_PHASE_BTN_TEXT, phase);
   }
 };

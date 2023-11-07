@@ -1,50 +1,44 @@
 import * as C from '../constant/constant';
 import { drawFillRect, drawRect } from '../helper/draw';
-import { TPlayerPhase, TPlayerType, TCardFace, TCardPlace, TCardPosition } from '../types';
-import Card from './Card';
+import { TPlayerPhase, TPlayerType, TCardFace, TCardPlace, TCardPosition, TCard } from '../types';
+import Card from './card/Card';
+import MonsterCard from './card/MonsterCard';
 
 export default class Player {
   protected playerType: TPlayerType;
-  private handCards: Card[] = [];
-  private field: Card[] = [];
-  private magicZone: Card[] = [];
-  private grave: Card[] = [];
-  private deck: Card[];
+  private hand: TCard[] = [];
+  private field: TCard[] = [];
+  private magicZone: TCard[] = [];
+  private grave: TCard[] = [];
+  private deck: TCard[];
   private score: number = 4000;
   private phase: TPlayerPhase = 'waiting';
 
-  constructor(playerType: TPlayerType, deck: Card[]) {
+  constructor(playerType: TPlayerType, deck: TCard[]) {
     this.playerType = playerType;
     this.deck = deck;
   }
 
-  changeScore(damageType: string, damage: number) {
+  getScore(): number {
+    return this.score;
+  }
+
+  setScore(damageType: string, damage: number) {
     if (damageType === 'atk' && damage > 0) {
       this.score = this.score - damage;
     }
   }
 
-  addCardFromDeckToHand(cards: Card[]) {
-    // add cards to hand
-    this.handCards.push(...cards);
+  getPhase(): TPlayerPhase {
+    return this.phase;
+  }
 
-    // remove cards in deck
-    for (let i = 0; i < this.deck.length; i++) {
-      for (let j = 0; j < cards.length; j++) {
-        if (this.deck[i].idWithDeck === cards[j].idWithDeck) {
-          this.deck.splice(i, 1);
-          i--;
-          break;
-        }
-      }
+  setPhase(initPhase?: TPlayerPhase) {
+    if (initPhase) {
+      this.phase = initPhase;
+      return;
     }
-  }
 
-  setPhase(phase: TPlayerPhase) {
-    this.phase = phase;
-  }
-
-  setNextPhase() {
     switch (this.phase) {
       case 'main':
         this.phase = 'attack';
@@ -58,6 +52,71 @@ export default class Player {
 
       default:
         break;
+    }
+  }
+
+  getCard(idWithDeck: string, from: TCard[]): TCard {
+    let card = {} as TCard;
+    if (from && from.length > 0) {
+      card = from.find((card) => card?.idWithDeck === idWithDeck) as TCard;
+    }
+    return card;
+  }
+
+  getDeck(): TCard[] {
+    return this.deck;
+  }
+
+  getHand(): TCard[] {
+    return this.hand;
+  }
+
+  getField(): TCard[] {
+    return this.field;
+  }
+
+  getMagicZone(): TCard[] {
+    return this.magicZone;
+  }
+
+  getOneHandCard(idWithDeck: string): TCard {
+    return this.hand.find((card) => card?.idWithDeck === idWithDeck) as TCard;
+  }
+
+  getOneFieldCard(idWithDeck: string): TCard {
+    return this.field.find((card) => card?.idWithDeck === idWithDeck) as TCard;
+  }
+
+  getGraveCards(): Card[] {
+    return this.grave;
+  }
+
+  getOneGraveCard(idWithDeck: string): TCard | undefined {
+    return this.grave.find((card) => card.idWithDeck === idWithDeck) as TCard;
+  }
+
+  addCardFromDeckToHand(cards: TCard[]) {
+    // check cards
+    cards = cards.filter((card) => card);
+
+    // add cards to hand
+    this.hand.push(...cards);
+
+    // remove cards in deck
+    for (let i = 0; i < this.deck.length; i++) {
+      for (let j = 0; j < cards.length; j++) {
+        if (
+          this.deck[j] &&
+          this.deck[i].idWithDeck &&
+          cards[j] &&
+          cards[j].idWithDeck &&
+          this.deck[i].idWithDeck === cards[j].idWithDeck
+        ) {
+          this.deck.splice(i, 1);
+          i--;
+          break;
+        }
+      }
     }
   }
 
@@ -78,7 +137,7 @@ export default class Player {
         goToPlace = this.deck;
         break;
       case 'hand':
-        goToPlace = this.handCards;
+        goToPlace = this.hand;
         validate = goToPlace?.length < C.MAX_ITEM.hand;
         break;
       case 'field':
@@ -103,7 +162,7 @@ export default class Player {
         break;
       case 'hand':
         card = this.getOneHandCard(idWithDeck);
-        fromPlace = this.handCards;
+        fromPlace = this.hand;
         break;
       case 'field':
         card = this.getOneFieldCard(idWithDeck);
@@ -120,12 +179,11 @@ export default class Player {
       default:
         break;
     }
-    console.log('INFO', goToPlace, fromPlace);
 
     if (card && goToPlace && fromPlace && fromPlace?.length > 0 && validate) {
       // add card to field
       card.setFace(face);
-      card.changePosition(position);
+      card.setPosition(position);
       goToPlace.push(card);
 
       // remove card in hand
@@ -140,59 +198,21 @@ export default class Player {
     }
   }
 
-  getPhase(): TPlayerPhase {
-    return this.phase;
-  }
-
-  getScore(): number {
-    return this.score;
-  }
-
-  getDeck(): Card[] {
-    return this.deck;
-  }
-
-  getHandCards(): Card[] {
-    return this.handCards;
-  }
-
-  getFieldCards(): Card[] {
-    return this.field;
-  }
-
-  getMagicCards(): Card[] {
-    return this.magicZone;
-  }
-
-  getOneHandCard(idWithDeck: string): Card | undefined {
-    return this.handCards.find((card) => card.idWithDeck === idWithDeck);
-  }
-
-  getOneFieldCard(idWithDeck: string): Card {
-    return this.field.find((card) => card.idWithDeck === idWithDeck) as Card;
-  }
-
-  getGraveCards(): Card[] {
-    return this.grave;
-  }
-
-  getOneGraveCard(idWithDeck: string): Card | undefined {
-    return this.grave.find((card) => card.idWithDeck === idWithDeck) as Card;
-  }
-
-  drawHandCards(context: CanvasRenderingContext2D, action: any) {
+  drawHand(context: CanvasRenderingContext2D, action: any) {
     let x = this.playerType === 'player' ? C.HAND_CARDS.x : C.OPPONENT_HAND_CARDS.x;
     let y = this.playerType === 'player' ? C.HAND_CARDS.y : C.OPPONENT_HAND_CARDS.y;
     let space =
       this.playerType === 'player' ? C.HAND_CARDS.spaceBetweenCard : C.OPPONENT_HAND_CARDS.spaceBetweenCard;
 
-    for (let i = 0; i < this.handCards.length; i++) {
-      this.handCards[i].drawCard(context, x, y, this.playerType, 'hand', action);
+    for (let i = 0; i < this.hand.length; i++) {
+      if (this.hand[i].cardType === 'monster') {
+        this.hand[i].drawCard(context, x, y, this.playerType, 'hand', action);
+      }
       x += C.CARD.width + space;
     }
   }
 
-  drawFieldCards(context: CanvasRenderingContext2D, action: any) {
+  drawField(context: CanvasRenderingContext2D, action: any) {
     let positionSpace = (C.CARD.height - C.CARD.width) / 2;
     let x = (this.playerType === 'player' ? C.FIELD_CARDS.x : C.OPPONENT_FIELD_CARDS.x) + positionSpace;
     let y = (this.playerType === 'player' ? C.FIELD_CARDS.y : C.OPPONENT_FIELD_CARDS.y) - positionSpace;
@@ -262,7 +282,5 @@ export default class Player {
       this.magicZone[1].drawCard(context, magic2.x + 1, magic2.y + 1, this.playerType, 'magic-zone', action);
     this.magicZone[2] &&
       this.magicZone[2].drawCard(context, magic3.x + 1, magic3.y + 1, this.playerType, 'magic-zone', action);
-
-    console.log('111', this.magicZone);
   }
 }

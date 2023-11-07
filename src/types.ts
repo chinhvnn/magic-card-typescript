@@ -1,10 +1,16 @@
-import Card from './components/Card';
+import Card from './components/card/Card';
+import EffectCard from './components/card/EffectCard';
+import MonsterCard from './components/card/MonsterCard';
+import TrapCard from './components/card/TrapCard';
 
-//System
+// Card
+export type TCardType = 'monster' | 'effect' | 'trap';
+export type TCard = MonsterCard & EffectCard & TrapCard;
+
+// System
 export type TPlayStatus = 'inMenuStartGame' | 'inGame' | 'playing' | 'pause';
 export type TCardPosition = 'def' | 'atk' | 'block';
 export type TCardFace = 'up' | 'down';
-export type TCardType = 'monster' | 'effect' | 'trap';
 export type TCardPlace = 'deck' | 'grave' | 'hand' | 'magic-zone' | 'field';
 export type TActionType = null | 'card' | 'deck' | 'grave' | 'action-menu';
 export type TEffect = 'power' | 'heal';
@@ -42,4 +48,11 @@ export interface IEffect {
   name: string;
   description: string;
   type: TEffect;
+}
+
+export interface IActionCount {
+  atkCount: number;
+  maxAtkCount: number;
+  useEffCount: number;
+  maxUseEffCount: number;
 }

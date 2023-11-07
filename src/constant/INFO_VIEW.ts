@@ -123,10 +123,11 @@ export const INFO_PHASE_BTN = {
 };
 
 export const INFO_PHASE_BTN_TEXT = {
-  x: INFO_PHASE_BTN.x + 22,
+  x: INFO_PHASE_BTN.x + INFO_PHASE_BTN.width / 2,
   y: INFO_PHASE_BTN.y + 22,
   width: INFO_PHASE_BTN.width,
   font: 'bold 14px Arial',
   fillStyle: 'black',
+  textAlign: 'center',
   maxWidth: INFO_PHASE_BTN.width - 10,
 };

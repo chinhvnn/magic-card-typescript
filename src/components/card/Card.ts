@@ -1,48 +1,69 @@
-import { CARD, CARD_MAGIC_ZONE, SELECTED } from '../constant/constant';
-import { TCardPosition, IAction, IEffect, TPlayerType, TCardType, TCardFace, TCardPlace } from '../types';
+import { CARD, CARD_MAGIC_ZONE, SELECTED } from '../../constant/constant';
+import {
+  TCardPosition,
+  IAction,
+  IEffect,
+  TPlayerType,
+  TCardType,
+  TCardFace,
+  TCardPlace,
+  IActionCount,
+} from '../../types';
 
-export default class Card {
+export default abstract class Card {
   public id: number;
   public idWithDeck: string = '';
   public x: number = 0;
   public y: number = 0;
   public width: number = CARD.width;
   public height: number = CARD.height;
-  public type: TCardType;
-  public position: TCardPosition;
-  public face: TCardFace;
-  public atk: number;
-  public def: number;
-  public effect: IEffect;
-  public description: string = 'des';
   public attribute: string = '';
-  public actionCount: any = { atk: 0, useEffect: 0 };
+  public description?: string = 'des';
+  public face: TCardFace;
+  protected position: TCardPosition;
+  public actionCount: IActionCount;
   public place?: TCardPlace;
+
+  // public type: TCardType;
+  // public atk?: number;
+  // public def?: number;
+  // public effect?: IEffect;
+  // public actionCount?: IActionCount;
 
   constructor(
     id: number,
-    atk: number,
-    def: number,
     face: TCardFace,
-    type: TCardType,
-    effect: IEffect,
     position: TCardPosition,
+    // atk: number,
+    // def: number,
+    // type: TCardType,
+    // effect: IEffect,
+    actionCount: IActionCount,
   ) {
     this.id = id;
-    this.type = type;
-    this.atk = atk;
-    this.def = def;
+    // this.type = type;
+    // this.atk = atk;
+    // this.def = def;
     this.face = face;
     this.position = position;
-    this.effect = effect;
+    // this.effect = effect;
+    this.actionCount = actionCount;
   }
 
-  changePosition(nextPosition: TCardPosition) {
+  getPosition() {
+    return this.position;
+  }
+
+  setPosition(nextPosition: TCardPosition) {
     this.position = nextPosition;
   }
 
   setFace(face: TCardFace) {
     this.face = face;
+  }
+
+  getIdWithDeck() {
+    return this.idWithDeck;
   }
 
   setIdWithDeck(idWithDeck: string) {
@@ -57,17 +78,20 @@ export default class Card {
     from: TCardPlace,
     action?: IAction,
   ): void {
+    let bgWidth, bgHeight, cardBorderWidth, cardBorderHeight, imgBorderWidth, imgBorderHeight;
     let card = from === 'magic-zone' ? CARD_MAGIC_ZONE : CARD;
-    let bgWidth = card.width - 2;
-    let bgHeight = card.height - 2;
-    let cardBorderWidth = card.width;
-    let cardBorderHeight = card.height;
-    let imgBorderWidth = card.width - card.space * 2 - 2;
-    let imgBorderHeight = card.imgHeight;
-    this.place = from;
 
+    // calculator data
     if (this.position === 'atk') {
-    } else if (this.position === 'def') {
+      // atk position
+      bgWidth = card.width - 2;
+      bgHeight = card.height - 2;
+      cardBorderWidth = card.width;
+      cardBorderHeight = card.height;
+      imgBorderWidth = card.width - card.space * 2 - 2;
+      imgBorderHeight = card.imgHeight;
+    } else {
+      // def position
       x = x - (card.height - card.width) / 2;
       y = y + (card.height - card.width) / 2;
       bgWidth = card.height - 2;
@@ -78,10 +102,12 @@ export default class Card {
       imgBorderHeight = card.width - card.space * 2 - 2;
     }
 
+    // Set new data
     this.x = x;
     this.y = y;
     this.width = cardBorderWidth;
     this.height = cardBorderHeight;
+    this.place = from;
 
     if (context) {
       let borderColor = 'white';
@@ -170,33 +196,6 @@ export default class Card {
           card.imgHeight,
         );
         context.stroke();
-        context.restore();
-        context.closePath();
-
-        // draw card description
-        context.beginPath();
-        context.save();
-        context.fillStyle = 'red';
-        context.font = card.descFont;
-        if (this.position === 'def') {
-          const xTrans = x + 2 + card.width / 2 - 5;
-          const yTrans = y + card.space * 3 + card.titleHeight + card.imgHeight - 45;
-          context.translate(xTrans, yTrans);
-          context.rotate(-Math.PI / 2);
-          context.translate(-xTrans, -yTrans);
-        }
-        context.fillText(
-          `ATK: ${this.atk}`,
-          x + 2,
-          y + card.space * 3 + card.titleHeight + card.imgHeight + card.desHeight,
-          // card.width - card.space * 2
-        );
-        context.fillText(
-          `DEF: ${this.def}`,
-          x + 2,
-          y + card.space * 3 + card.titleHeight + card.imgHeight + card.desHeight + card.descSpace,
-          // card.width - card.space * 2
-        );
         context.restore();
         context.closePath();
       }

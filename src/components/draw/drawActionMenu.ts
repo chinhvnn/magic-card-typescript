@@ -49,18 +49,16 @@ export const getMagicMenuCoordinate = (action: IAction) => {
 };
 
 export const drawActionMenu = (context: CanvasRenderingContext2D, phase: TPlayerPhase, action?: IAction) => {
-  if (
-    (action?.name === 'click-field-card' && phase === 'attack') ||
-    (action?.name === 'click-hand-card' && phase === 'main')
-  ) {
+  if (action?.name === 'click-field-card' || (action?.name === 'click-hand-card' && phase === 'main')) {
     const { attackBtn, changePositionBtn, useEffectBtn } = getActionMenuCoordinate(action);
+    console.log('111 ', attackBtn);
 
     let textBtn1 = '';
     if (action.name === 'click-hand-card') {
-      if (action.payload.type === 'monster') {
+      if (action.payload.cardType === 'monster') {
         textBtn1 = 'Summon';
       }
-      if (action.payload.type === 'effect') {
+      if (action.payload.cardType === 'effect') {
         textBtn1 = 'Use Effect';
       }
     }

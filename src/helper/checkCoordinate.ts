@@ -1,4 +1,4 @@
-import Card from '../components/Card';
+import Card from '../components/card/Card';
 
 export const checkCoordinate = (mouseCoordinate: any, item: any): boolean => {
   const { x: xMouse, y: yMouse } = mouseCoordinate;

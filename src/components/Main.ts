@@ -1,10 +1,10 @@
-import { IAction, IEffect, TPlayStatus, TPlayerType } from '../types';
+import { IAction, IActionCount, IEffect, TCard, TPlayStatus, TPlayerType } from '../types';
 import { DECK, GRAVE, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
 import Deck from './Deck';
 import Player from './Player';
 import { checkCoordinate, getSelectedCard } from '../helper/checkCoordinate';
 import { drawViewInfo } from './draw/drawViewInfo';
-import Card from './Card';
+import Card from './card/Card';
 import {
   drawActionMenu,
   drawMagicActionMenu,
@@ -13,6 +13,7 @@ import {
 } from './draw/drawActionMenu';
 import { INFO_PHASE_BTN } from '../constant/INFO_VIEW';
 import { drawFillRect, drawRect } from '../helper/draw';
+import MonsterCard from './card/MonsterCard';
 
 export default class Main {
   protected players: Player[] = [];
@@ -30,27 +31,15 @@ export default class Main {
     this.playStatus = 'inMenuStartGame';
     this.turn = playerNames[0];
     const playerDeck = [
-      new Card(1, 100, 100, 'up', 'effect', {} as IEffect, 'atk'),
-      new Card(2, 200, 200, 'up', 'effect', {} as IEffect, 'atk'),
-      new Card(3, 300, 300, 'up', 'effect', {} as IEffect, 'atk'),
-      new Card(4, 400, 400, 'up', 'effect', {} as IEffect, 'atk'),
-      new Card(5, 500, 500, 'up', 'monster', {} as IEffect, 'atk'),
-      new Card(6, 600, 600, 'up', 'monster', {} as IEffect, 'atk'),
-      new Card(7, 700, 700, 'up', 'monster', {} as IEffect, 'atk'),
-      new Card(8, 800, 800, 'up', 'monster', {} as IEffect, 'atk'),
-      new Card(9, 800, 800, 'up', 'monster', {} as IEffect, 'atk'),
-    ];
+      new MonsterCard(1, 'up', 'atk', {} as any, 100, 1000),
+      new MonsterCard(2, 'up', 'atk', {} as any, 100, 1000),
+      new MonsterCard(3, 'up', 'atk', {} as any, 100, 1000),
+    ] as TCard[];
     const opponentDeck = [
-      new Card(1, 100, 100, 'up', 'effect', {} as IEffect, 'atk'),
-      new Card(2, 200, 200, 'up', 'effect', {} as IEffect, 'atk'),
-      new Card(3, 300, 300, 'up', 'effect', {} as IEffect, 'atk'),
-      new Card(4, 400, 400, 'up', 'effect', {} as IEffect, 'atk'),
-      new Card(5, 500, 500, 'up', 'monster', {} as IEffect, 'atk'),
-      new Card(6, 600, 600, 'up', 'monster', {} as IEffect, 'atk'),
-      new Card(7, 700, 700, 'up', 'monster', {} as IEffect, 'atk'),
-      new Card(8, 800, 800, 'up', 'monster', {} as IEffect, 'atk'),
-      new Card(9, 800, 800, 'up', 'monster', {} as IEffect, 'atk'),
-    ];
+      new MonsterCard(1, 'up', 'atk', {} as any, 100, 1000),
+      new MonsterCard(2, 'up', 'atk', {} as any, 100, 1000),
+      new MonsterCard(3, 'up', 'atk', {} as any, 100, 1000),
+    ] as TCard[];
     playerDeck.map((card: Card, index) => card.setIdWithDeck('player-' + card.id + '-' + index));
     opponentDeck.map((card: Card, index) => card.setIdWithDeck('opponent-' + card.id + '-' + index));
     this.player = new Player('player', playerDeck);
@@ -79,31 +68,17 @@ export default class Main {
     // player
     this.player.setPhase('main');
     this.player.addCardFromDeckToHand([
-      this.player.getDeck()[0],
-      this.player.getDeck()[1],
-      // this.player.getDeck()[2],
-      // this.player.getDeck()[3],
-      // this.player.getDeck()[4],
-      // this.player.getDeck()[5],
-      this.player.getDeck()[6],
-      this.player.getDeck()[7],
+      this.player.getCard('player-1-0', this.player.getDeck()),
+      this.player.getCard('player-2-1', this.player.getDeck()),
     ]);
 
     // computer
     this.opponent.setPhase('waiting');
     this.opponent.addCardFromDeckToHand([
-      this.opponent.getDeck()[0],
-      this.opponent.getDeck()[1],
-      this.opponent.getDeck()[2],
-      this.opponent.getDeck()[3],
-      this.opponent.getDeck()[4],
-      this.opponent.getDeck()[5],
-      this.opponent.getDeck()[6],
+      this.opponent.getCard('opponent-1-0', this.opponent.getDeck()),
+      this.opponent.getCard('opponent-2-1', this.opponent.getDeck()),
     ]);
-    this.opponent.playOneCard('opponent-2-1', 'up', 'atk', 'hand', 'magic-zone');
-    // this.opponent.playOneCard(12, 'up', 'hand', 'magic-zone');
-    // this.opponent.playOneCard(13, 'up', 'hand', 'magic-zone');
-    console.log('111 computer', this.opponent);
+    this.opponent.playOneCard('opponent-1-0', 'up', 'atk', 'hand', 'field');
 
     // draw game
     this.drawGame({ name: 'init', mouseCoordinate: {}, type: null });
@@ -125,35 +100,35 @@ export default class Main {
    * Action game: Card attack
    *----------------------------------------------------------------*/
   cardAttack(idWithDeck: string, targetId: string, player: Player, opponent: Player, isDirectly = false) {
-    const card: Card = this.player.getOneFieldCard(idWithDeck);
-    const target: Card = opponent.getOneFieldCard(targetId);
+    const card: TCard = this.player.getOneFieldCard(idWithDeck);
+    const target: TCard = opponent.getOneFieldCard(targetId);
 
-    if (!card) return;
-
-    if (target) {
-      if (target.position === 'def') {
-        let defDamage = card.atk - target.def;
-        if (defDamage < 0) {
-          this.player.changeScore('atk', defDamage * -1);
-          player.playOneCard(card.idWithDeck, 'up', 'atk', 'field', 'grave');
-        } else if (defDamage > 0) {
-          opponent.playOneCard(target.idWithDeck, 'up', 'atk', 'field', 'grave');
+    if (card && card.atk && card.def) {
+      if (target && target.atk && target.def) {
+        if (target.getPosition() === 'def') {
+          let defDamage = card.atk - target.def;
+          if (defDamage < 0) {
+            this.player.setScore('atk', defDamage * -1);
+            player.playOneCard(card.idWithDeck, 'up', 'atk', 'field', 'grave');
+          } else if (defDamage > 0) {
+            opponent.playOneCard(target.idWithDeck, 'up', 'atk', 'field', 'grave');
+          }
+        } else if (target.getPosition() === 'atk') {
+          let atkDamage = card.atk - target.atk;
+          if (atkDamage === 0) {
+            player.playOneCard(card.idWithDeck, 'up', 'atk', 'field', 'grave');
+            opponent.playOneCard(target.idWithDeck, 'up', 'atk', 'field', 'grave');
+          } else if (atkDamage > 0) {
+            opponent.playOneCard(target.idWithDeck, 'up', 'atk', 'field', 'grave');
+            opponent.setScore('atk', atkDamage);
+          } else {
+            player.playOneCard(card.idWithDeck, 'up', 'atk', 'field', 'grave');
+            player.setScore('atk', atkDamage * -1);
+          }
         }
-      } else if (target.position === 'atk') {
-        let atkDamage = card.atk - target.atk;
-        if (atkDamage === 0) {
-          player.playOneCard(card.idWithDeck, 'up', 'atk', 'field', 'grave');
-          opponent.playOneCard(target.idWithDeck, 'up', 'atk', 'field', 'grave');
-        } else if (atkDamage > 0) {
-          opponent.playOneCard(target.idWithDeck, 'up', 'atk', 'field', 'grave');
-          opponent.changeScore('atk', atkDamage);
-        } else {
-          player.playOneCard(card.idWithDeck, 'up', 'atk', 'field', 'grave');
-          player.changeScore('atk', atkDamage * -1);
-        }
+      } else if (isDirectly) {
+        opponent.setScore('atk', card.atk);
       }
-    } else if (isDirectly) {
-      opponent.changeScore('atk', card.atk);
     }
   }
 
@@ -179,27 +154,26 @@ export default class Main {
     drawViewInfo(this.context, this.players[0], this.players[1], action);
 
     // draw player item
-    this.player.drawHandCards(this.context, action);
-    this.player.drawFieldCards(this.context, action);
+    this.player.drawHand(this.context, action);
+    this.player.drawField(this.context, action);
     this.player.drawMagic(this.context, action);
     this.player.drawDeck(this.context, action);
     this.player.drawGrave(this.context, action);
 
     // draw computer item
-    console.log('111 action in draw', action);
-
     drawFillRect(
       this.context,
       OPPONENT_HAND_CARDS_WRAPPER,
-      action.name === 'click-attack' && !this.opponent.getFieldCards().length,
+      action.name === 'click-attack' && !this.opponent.getField().length,
     );
+
     drawRect(this.context, {
       ...OPPONENT_HAND_CARDS_WRAPPER,
-      strokeStyle: action.name === 'click-attack' && !this.opponent.getFieldCards().length ? 'red' : '',
+      strokeStyle: action.name === 'click-attack' && !this.opponent.getField().length ? 'red' : '',
     });
 
-    this.opponent.drawHandCards(this.context, action);
-    this.opponent.drawFieldCards(this.context, action);
+    this.opponent.drawHand(this.context, action);
+    this.opponent.drawField(this.context, action);
     this.opponent.drawMagic(this.context, action);
     this.opponent.drawDeck(this.context, action);
     this.opponent.drawGrave(this.context, action);
@@ -223,8 +197,8 @@ export default class Main {
     setTimeout(() => {
       if (this.player.getPhase() === 'waiting' && this.opponent.getPhase() === 'waiting') {
         this.opponent.setPhase('main');
-        if (this.opponent.getHandCards()[0].idWithDeck) {
-          this.opponent.playOneCard(this.opponent.getHandCards()[0].idWithDeck, 'up', 'atk', 'hand', 'field');
+        if (this.opponent.getHand()[0]?.idWithDeck) {
+          this.opponent.playOneCard(this.opponent.getHand()[0].idWithDeck, 'up', 'atk', 'hand', 'field');
         }
         this.drawGame(this.action);
         return;
@@ -253,9 +227,9 @@ export default class Main {
     let yMouse = e.clientY - (window.innerHeight - SCREEN.height - 53) / 2;
     let mouseCoordinate = { x: xMouse, y: yMouse };
     let nextAction: IAction = { name: '', mouseCoordinate, type: null, payload: {} };
-    const selectedHandCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getHandCards());
-    const selectedFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getFieldCards());
-    const selectedMagicCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getMagicCards());
+    const selectedHandCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getHand());
+    const selectedFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getField());
+    const selectedMagicCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getMagicZone());
     const player = this.players[0];
     const opponent = this.players[1];
 
@@ -299,11 +273,10 @@ export default class Main {
     // CHECK CLICK ATTACK/USE EFFECT
     if (this.action?.name === 'click-attack') {
       // If attack card
-      const selectedOpponentFieldCard: Card = getSelectedCard(
-        mouseCoordinate,
-        this.players[1].getFieldCards(),
-      );
+      const selectedOpponentFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[1].getField());
       if (selectedOpponentFieldCard?.idWithDeck) {
+        player.setPhase('attack');
+
         nextAction.name = 'click-attack-opponent-field-card';
         nextAction.payload = selectedOpponentFieldCard;
 
@@ -328,7 +301,7 @@ export default class Main {
       // check click button NEXT PHASE
       if (checkCoordinate(mouseCoordinate, INFO_PHASE_BTN)) {
         nextAction.name = 'click-next-phase';
-        player.setNextPhase();
+        player.setPhase();
       }
 
       // check click button MAGIC CARD ACTION
@@ -356,11 +329,11 @@ export default class Main {
         if (checkCoordinate(mouseCoordinate, attackBtn)) {
           if (this.action.name === 'click-hand-card') {
             // summon
-            if (this.action.payload.type === 'monster' && player.getFieldCards().length < 3) {
+            if (this.action.payload.cardType === 'monster' && player.getField().length < 3) {
               player.playOneCard(this.action.payload.idWithDeck, 'up', 'atk', 'hand', 'field');
             }
             // use effect
-            if (this.action.payload.type === 'effect' && player.getMagicCards().length < 3) {
+            if (this.action.payload.cardType === 'effect' && player.getMagicZone().length < 3) {
               // handle use card effect
               nextAction.name = 'click-use-effect';
             }
@@ -382,7 +355,7 @@ export default class Main {
             if (this.action.payload.face === 'up') {
               nextAction.name = 'click-change-position';
               const position = this.action.payload.position === 'atk' ? 'def' : 'atk';
-              this.action.payload.changePosition(position);
+              this.action.payload.setPosition(position);
             }
             // change face up
             if (this.action.payload.face === 'down') {
@@ -395,13 +368,13 @@ export default class Main {
           // set card
           if (this.action.name === 'click-hand-card') {
             if (
-              (this.action.payload.type === 'effect' || this.action.payload.type === 'trap') &&
-              player.getMagicCards().length < 3
+              (this.action.payload.cardType === 'effect' || this.action.payload.type === 'trap') &&
+              player.getMagicZone().length < 3
             ) {
               nextAction.name = 'click-set-magic-card';
               player.playOneCard(this.action.payload.idWithDeck, 'down', 'atk', 'hand', 'magic-zone');
             }
-            if (this.action.payload.type === 'monster' && player.getFieldCards().length < 3) {
+            if (this.action.payload.cardType === 'monster' && player.getField().length < 3) {
               nextAction.name = 'click-set-monster-card';
               player.playOneCard(this.action.payload.idWithDeck, 'down', 'def', 'hand', 'field');
             }
