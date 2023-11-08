@@ -223,18 +223,22 @@ export default class Main {
    * Check play action
    *----------------------------------------------------------------*/
   public checkPlayAction(e: MouseEvent) {
-    let xMouse = e.clientX - (window.innerWidth - SCREEN.width) / 2;
-    let yMouse = e.clientY - (window.innerHeight - SCREEN.height - 53) / 2;
-    let mouseCoordinate = { x: xMouse, y: yMouse };
-    let nextAction: IAction = { name: '', mouseCoordinate, type: null, payload: {} };
-    const selectedHandCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getHand());
-    const selectedFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getField());
-    const selectedMagicCard: Card = getSelectedCard(mouseCoordinate, this.players[0].getMagicZone());
     const player = this.players[0];
     const opponent = this.players[1];
+    console.log('111', document.querySelector('canvas')?.clientHeight);
+    let gameWidth = document.querySelector('canvas')?.clientWidth || 0;
+    let gameHeight = document.querySelector('canvas')?.clientHeight || 0;
+    let screenRatio = gameWidth < SCREEN.width ? gameWidth / SCREEN.width : 1;
+    let xMouse = e.clientX - (window.innerWidth - gameWidth) / 2;
+    let yMouse = e.clientY - (window.innerHeight - gameHeight - 53) / 2;
+    let mouseCoordinate = { x: xMouse, y: yMouse };
+    let nextAction: IAction = { name: '', mouseCoordinate, type: null, payload: {} };
+    const selectedHandCard: TCard = getSelectedCard(mouseCoordinate, player.getHand(), screenRatio);
+    const selectedFieldCard: TCard = getSelectedCard(mouseCoordinate, player.getField(), screenRatio);
+    const selectedMagicCard: TCard = getSelectedCard(mouseCoordinate, player.getMagicZone(), screenRatio);
 
     // CHECK CLICK DECK
-    if (checkCoordinate(mouseCoordinate, DECK)) {
+    if (checkCoordinate(mouseCoordinate, DECK, screenRatio)) {
       nextAction.name = 'click-deck';
       nextAction.type = 'deck';
       nextAction.payload.x = DECK.x;
@@ -242,7 +246,7 @@ export default class Main {
     }
 
     // CHECK CLICK GRAVE
-    if (checkCoordinate(mouseCoordinate, GRAVE)) {
+    if (checkCoordinate(mouseCoordinate, GRAVE, screenRatio)) {
       nextAction.name = 'click-grave';
       nextAction.type = 'grave';
       nextAction.payload.x = GRAVE.x;
@@ -273,7 +277,11 @@ export default class Main {
     // CHECK CLICK ATTACK/USE EFFECT
     if (this.action?.name === 'click-attack') {
       // If attack card
-      const selectedOpponentFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[1].getField());
+      const selectedOpponentFieldCard: Card = getSelectedCard(
+        mouseCoordinate,
+        this.players[1].getField(),
+        screenRatio,
+      );
       if (selectedOpponentFieldCard?.idWithDeck) {
         player.setPhase('attack');
 
@@ -289,7 +297,7 @@ export default class Main {
         );
       }
       // If attack directly
-      if (checkCoordinate(mouseCoordinate, OPPONENT_HAND_CARDS_WRAPPER)) {
+      if (checkCoordinate(mouseCoordinate, OPPONENT_HAND_CARDS_WRAPPER, screenRatio)) {
         nextAction.name = 'click-attack-opponent-directly';
         nextAction.payload = OPPONENT_HAND_CARDS_WRAPPER;
         this.cardAttack(this.action.payload.idWithDeck, '', player, opponent, true);
@@ -299,7 +307,7 @@ export default class Main {
     // CHECK ACTION PLAYER
     if (player.getPhase() !== 'waiting') {
       // check click button NEXT PHASE
-      if (checkCoordinate(mouseCoordinate, INFO_PHASE_BTN)) {
+      if (checkCoordinate(mouseCoordinate, INFO_PHASE_BTN, screenRatio)) {
         nextAction.name = 'click-next-phase';
         player.setPhase();
       }
@@ -307,7 +315,7 @@ export default class Main {
       // check click button MAGIC CARD ACTION
       if (this.action && this.action.name === 'click-magic-card') {
         const { magicBtn } = getMagicMenuCoordinate(this.action);
-        if (checkCoordinate(mouseCoordinate, magicBtn)) {
+        if (checkCoordinate(mouseCoordinate, magicBtn, screenRatio)) {
           nextAction.name = 'click-use-effect';
           nextAction.payload = this.action.payload;
           //handle use effect
@@ -326,7 +334,7 @@ export default class Main {
         const { attackBtn, changePositionBtn, useEffectBtn } = getActionMenuCoordinate(this.action);
 
         // ACTION-1: atk/ summon/ use effect
-        if (checkCoordinate(mouseCoordinate, attackBtn)) {
+        if (checkCoordinate(mouseCoordinate, attackBtn, screenRatio)) {
           if (this.action.name === 'click-hand-card') {
             // summon
             if (this.action.payload.cardType === 'monster' && player.getField().length < 3) {
@@ -348,7 +356,7 @@ export default class Main {
         }
 
         // ACTION-2: change position/ Set / Face up
-        if (checkCoordinate(mouseCoordinate, changePositionBtn)) {
+        if (checkCoordinate(mouseCoordinate, changePositionBtn, screenRatio)) {
           // change position or Face up
           if (this.action.name === 'click-field-card') {
             // change position
@@ -382,7 +390,7 @@ export default class Main {
           }
         }
         // ACTION-3: use card effect
-        if (checkCoordinate(mouseCoordinate, useEffectBtn)) {
+        if (checkCoordinate(mouseCoordinate, useEffectBtn, screenRatio)) {
           if (
             this.action &&
             this.action.name === 'click-field-card' &&
