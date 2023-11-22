@@ -1,5 +1,5 @@
 import { IAction, IActionCount, IEffect, TCard, TPlayStatus, TPlayerType } from '../types';
-import { DECK, GRAVE, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
+import { DECK, GRAVE, HAND_CARDS_WRAPPER, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
 import Deck from './Deck';
 import Player from './Player';
 import { checkCoordinate, getSelectedCard } from '../helper/checkCoordinate';
@@ -14,6 +14,7 @@ import {
 import { INFO_PHASE_BTN } from '../constant/INFO_VIEW';
 import { drawFillRect, drawRect } from '../helper/draw';
 import MonsterCard from './card/MonsterCard';
+import { drawMainFrame } from './draw/drawMainFrame';
 
 export default class Main {
   protected players: Player[] = [];
@@ -31,7 +32,7 @@ export default class Main {
     this.playStatus = 'inMenuStartGame';
     this.turn = playerNames[0];
     const playerDeck = [
-      new MonsterCard(1, 'up', 'atk', {} as any, 100, 1000),
+      new MonsterCard(1, 'up', 'atk', {} as any, 200, 1000),
       new MonsterCard(2, 'up', 'atk', {} as any, 100, 1000),
       new MonsterCard(3, 'up', 'atk', {} as any, 100, 1000),
     ] as TCard[];
@@ -144,14 +145,17 @@ export default class Main {
    * Draw/Update game
    *----------------------------------------------------------------*/
   public drawGame(action: IAction) {
+    const player = this.players[0];
+    const opponent = this.players[1];
+
     // clear before rerender
     this.clear();
 
-    // draw background game
-    drawFillRect(this.context, SCREEN);
+    // draw main frame
+    drawMainFrame(this.context, player, opponent, action);
 
     // draw view info game
-    drawViewInfo(this.context, this.players[0], this.players[1], action);
+    drawViewInfo(this.context, player, opponent, action);
 
     // draw player item
     this.player.drawHand(this.context, action);
@@ -166,7 +170,6 @@ export default class Main {
       OPPONENT_HAND_CARDS_WRAPPER,
       action.name === 'click-attack' && !this.opponent.getField().length,
     );
-
     drawRect(this.context, {
       ...OPPONENT_HAND_CARDS_WRAPPER,
       strokeStyle: action.name === 'click-attack' && !this.opponent.getField().length ? 'red' : '',
