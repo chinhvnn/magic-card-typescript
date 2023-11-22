@@ -15,6 +15,8 @@ import { INFO_PHASE_BTN } from '../constant/INFO_VIEW';
 import { drawFillRect, drawRect } from '../helper/draw';
 import MonsterCard from './card/MonsterCard';
 import { drawMainFrame } from './draw/drawMainFrame';
+import dwarf from '../data/cards/warrior/dwarf.json';
+import { getCardData, getDeckData } from '../helper/getData';
 
 export default class Main {
   protected players: Player[] = [];
@@ -31,16 +33,10 @@ export default class Main {
   constructor(playerNames: string[]) {
     this.playStatus = 'inMenuStartGame';
     this.turn = playerNames[0];
-    const playerDeck = [
-      new MonsterCard(1, 'up', 'atk', {} as any, 200, 1000),
-      new MonsterCard(2, 'up', 'atk', {} as any, 100, 1000),
-      new MonsterCard(3, 'up', 'atk', {} as any, 100, 1000),
-    ] as TCard[];
-    const opponentDeck = [
-      new MonsterCard(1, 'up', 'atk', {} as any, 100, 1000),
-      new MonsterCard(2, 'up', 'atk', {} as any, 100, 1000),
-      new MonsterCard(3, 'up', 'atk', {} as any, 100, 1000),
-    ] as TCard[];
+    const playerDeck = getDeckData('dwarf');
+    const opponentDeck = getDeckData('thousand-year-gold-dragon');
+    console.log('111', opponentDeck[0]);
+
     playerDeck.map((card: Card, index) => card.setIdWithDeck('player-' + card.id + '-' + index));
     opponentDeck.map((card: Card, index) => card.setIdWithDeck('opponent-' + card.id + '-' + index));
     this.player = new Player('player', playerDeck);
@@ -66,20 +62,20 @@ export default class Main {
   public start(): void {
     this.playStatus = 'inGame';
 
+    // get data
+    console.log('111 dwarf', this.opponent.getDeck()[0]);
+
     // player
     this.player.setPhase('main');
     this.player.addCardFromDeckToHand([
-      this.player.getCard('player-1-0', this.player.getDeck()),
-      this.player.getCard('player-2-1', this.player.getDeck()),
+      this.player.getCard(this.player.getDeck()[0].getIdWithDeck(), this.player.getDeck()),
     ]);
 
     // computer
     this.opponent.setPhase('waiting');
     this.opponent.addCardFromDeckToHand([
-      this.opponent.getCard('opponent-1-0', this.opponent.getDeck()),
-      this.opponent.getCard('opponent-2-1', this.opponent.getDeck()),
+      this.opponent.getCard(this.opponent.getDeck()[0].getIdWithDeck(), this.opponent.getDeck()),
     ]);
-    this.opponent.playOneCard('opponent-1-0', 'up', 'atk', 'hand', 'field');
 
     // draw game
     this.drawGame({ name: 'init', mouseCoordinate: {}, type: null });
@@ -280,11 +276,7 @@ export default class Main {
     // CHECK CLICK ATTACK/USE EFFECT
     if (this.action?.name === 'click-attack') {
       // If attack card
-      const selectedOpponentFieldCard: Card = getSelectedCard(
-        mouseCoordinate,
-        this.players[1].getField(),
-        screenRatio,
-      );
+      const selectedOpponentFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[1].getField(), screenRatio);
       if (selectedOpponentFieldCard?.idWithDeck) {
         player.setPhase('attack');
 
@@ -292,12 +284,7 @@ export default class Main {
         nextAction.payload = selectedOpponentFieldCard;
 
         //calculator atk
-        this.cardAttack(
-          this.action.payload.idWithDeck,
-          selectedOpponentFieldCard.idWithDeck,
-          player,
-          opponent,
-        );
+        this.cardAttack(this.action.payload.idWithDeck, selectedOpponentFieldCard.idWithDeck, player, opponent);
       }
       // If attack directly
       if (checkCoordinate(mouseCoordinate, OPPONENT_HAND_CARDS_WRAPPER, screenRatio)) {
@@ -330,10 +317,7 @@ export default class Main {
       }
 
       // check click button FIELD & HAND CARD ACTION
-      if (
-        this.action &&
-        (this.action.name === 'click-hand-card' || this.action.name === 'click-field-card')
-      ) {
+      if (this.action && (this.action.name === 'click-hand-card' || this.action.name === 'click-field-card')) {
         const { attackBtn, changePositionBtn, useEffectBtn } = getActionMenuCoordinate(this.action);
 
         // ACTION-1: atk/ summon/ use effect
@@ -394,11 +378,7 @@ export default class Main {
         }
         // ACTION-3: use card effect
         if (checkCoordinate(mouseCoordinate, useEffectBtn, screenRatio)) {
-          if (
-            this.action &&
-            this.action.name === 'click-field-card' &&
-            this.action.payload.effect?.idWithDeck
-          ) {
+          if (this.action && this.action.name === 'click-field-card' && this.action.payload.effect?.idWithDeck) {
             nextAction.name = 'click-use-effect';
             nextAction.payload = this.action.payload;
           }

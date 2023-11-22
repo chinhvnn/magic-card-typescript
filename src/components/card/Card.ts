@@ -13,6 +13,7 @@ import {
 export default abstract class Card {
   public id: number;
   public idWithDeck: string = '';
+  public deck: string = '';
   public x: number = 0;
   public y: number = 0;
   public width: number = CARD.width;

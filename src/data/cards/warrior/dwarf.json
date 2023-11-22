@@ -1,0 +1,39 @@
+[
+  {
+    "$schema": {
+      "id": "string"
+    },
+    "id": 1700640836167,
+    "type": "monster",
+    "name": "God of Dwarf",
+    "deck": "dwarf",
+    "attribute": [
+      "warrior"
+    ],
+    "atk": 2800,
+    "def": 2800,
+    "description": "This is warrior",
+    "effect": {}
+  },
+  {
+    "id": 1700640836167,
+    "type": "monster",
+    "name": "Blacksmith of Dwarf",
+    "deck": "dwarf",
+    "attribute": [
+      "warrior"
+    ],
+    "atk": 1000,
+    "def": 1000,
+    "description": "This is Blacksmith of Dwarf",
+    "effect": {}
+  },
+  {
+    "id": 1700708410733,
+    "type": "effect",
+    "name": "Fire of Dwarf",
+    "deck": "dwarf",
+    "description": "This is Fire of Dwarf",
+    "effect": {}
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1700641329410,
+    "name": "Thousand year gold dragon",
+    "type": "monster",
+    "deck": "thousand-year-gold-dragon",
+    "attribute": [
+      "dragon",
+      "light"
+    ],
+    "atk": 3000,
+    "def": 500,
+    "description": "This is Thousand year gold dragon",
+    "effect": {}
+  },
+  {
+    "id": 1700704284974,
+    "name": "Baby gold dragon",
+    "type": "monster",
+    "deck": "thousand-year-gold-dragon",
+    "attribute": [
+      "dragon"
+    ],
+    "atk": 300,
+    "def": 100,
+    "description": "This is Baby gold dragon",
+    "effect": {}
+  },
+  {
+    "id": 1700706900989,
+    "name": "Thousand year dock keeper",
+    "type": "monster",
+    "deck": "thousand-year-gold-dragon",
+    "attribute": [
+      "warrior"
+    ],
+    "atk": 1300,
+    "def": 2000,
+    "description": "This is Thousand year dock keeper",
+    "effect": {}
+  },
+  {
+    "id": 1700707036866,
+    "name": "Thousand year stone",
+    "type": "effect",
+    "deck": "thousand-year-gold-dragon",
+    "description": "This is Thousand year stone",
+    "effect": {}
+  },
+  {
+    "id": 1700707191381,
+    "name": "Thousand year clock",
+    "type": "effect",
+    "deck": "thousand-year-gold-dragon",
+    "description": "This is Thousand year clock",
+    "effect": {}
+  }
+]
