@@ -19,6 +19,7 @@ export const SCREEN = {
 export const SELECTED = {
   shadowBlur: 20,
   shadowColor: 'white',
+  borderColor: 'orange',
 };
 
 export const CARD = {

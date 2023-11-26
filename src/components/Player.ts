@@ -19,6 +19,10 @@ export default class Player {
     this.deck = deck;
   }
 
+  getType(): TPlayerType {
+    return this.playerType;
+  }
+
   getScore(): number {
     return this.score;
   }
@@ -229,10 +233,15 @@ export default class Player {
     const deck = this.playerType === 'player' ? C.DECK : C.OPPONENT_DECK;
     let borderColor = 'white';
 
-    // if has action
+    context.beginPath();
+    context.save();
+
+    // Hover selected card
     if (action && this.playerType === 'player') {
-      if (action.name == 'click-deck') {
-        borderColor = 'red';
+      if (action.name === 'click-deck') {
+        context.shadowBlur = 30;
+        context.shadowColor = C.SELECTED.shadowColor;
+        borderColor = C.SELECTED.borderColor;
       }
     }
 
@@ -241,16 +250,24 @@ export default class Player {
 
     // draw card border
     drawRect(context, { ...deck, strokeStyle: borderColor });
+
+    context.restore();
+    context.closePath();
   }
 
   drawGrave(context: CanvasRenderingContext2D, action: any) {
     const grave = this.playerType === 'player' ? C.GRAVE : C.OPPONENT_GRAVE;
     let borderColor = 'white';
 
-    // if has action
+    context.beginPath();
+    context.save();
+
+    // Hover selected card
     if (action && this.playerType === 'player') {
-      if (action.name == 'click-grave') {
-        borderColor = 'red';
+      if (action.name === 'click-grave') {
+        context.shadowBlur = 30;
+        context.shadowColor = C.SELECTED.shadowColor;
+        borderColor = C.SELECTED.borderColor;
       }
     }
 
@@ -259,6 +276,9 @@ export default class Player {
 
     // draw card border
     drawRect(context, { ...grave, strokeStyle: borderColor });
+
+    context.restore();
+    context.closePath();
   }
 
   drawMagic(context: CanvasRenderingContext2D, action: any) {

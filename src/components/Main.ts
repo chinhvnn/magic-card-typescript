@@ -1,6 +1,5 @@
 import { IAction, IActionCount, IEffect, TCard, TPlayStatus, TPlayerType } from '../types';
 import { DECK, GRAVE, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
-import Deck from './Deck';
 import Player from './Player';
 import { checkCoordinate, getSelectedCard } from '../helper/checkCoordinate';
 import { drawViewInfo } from './draw/drawViewInfo';
@@ -19,7 +18,6 @@ export default class Main {
   protected players: Player[] = [];
   public player: Player;
   public opponent: Player;
-  protected decks: Deck[] = [];
   protected turn: string;
   protected action: IAction = { name: 'init', mouseCoordinate: {}, type: null };
 
@@ -236,6 +234,7 @@ export default class Main {
     const selectedHandCard: TCard = getSelectedCard(mouseCoordinate, player.getHand(), screenRatio);
     const selectedFieldCard: TCard = getSelectedCard(mouseCoordinate, player.getField(), screenRatio);
     const selectedMagicCard: TCard = getSelectedCard(mouseCoordinate, player.getMagicZone(), screenRatio);
+    const selectedOptFieldCard: TCard = getSelectedCard(mouseCoordinate, opponent.getField(), screenRatio);
 
     // CHECK CLICK DECK
     if (checkCoordinate(mouseCoordinate, DECK, screenRatio)) {
@@ -268,6 +267,13 @@ export default class Main {
     }
 
     // CHECK CLICK MAGIC CARD
+    if (selectedOptFieldCard?.idWithDeck && selectedOptFieldCard?.idWithDeck.split('-')?.[0] === 'opponent') {
+      nextAction.name = 'click-opponent-field-card';
+      nextAction.type = 'card';
+      nextAction.payload = selectedOptFieldCard;
+    }
+
+    // CHECK CLICK OPPONENT FIELD CARD
     if (selectedMagicCard?.idWithDeck) {
       nextAction.name = 'click-magic-card';
       nextAction.type = 'card';
@@ -408,7 +414,14 @@ export default class Main {
       this.drawGame(nextAction);
     }
 
-    console.log('[LOG] - this.action, nextAction, player', this.action, nextAction, player);
+    console.log(
+      '[LOG] - this.action:',
+      this.action,
+      '\n[LOG] - nextAction:',
+      nextAction,
+      '\n[LOG] - player:',
+      player,
+    );
 
     this.action = nextAction;
   }
