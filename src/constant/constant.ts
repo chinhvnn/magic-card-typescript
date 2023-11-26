@@ -133,6 +133,17 @@ export const HAND_CARDS = {
   fillStyle: '',
 };
 
+export const HAND_CARDS_WRAPPER = {
+  x: SCREEN.padding + 6 + DECK.width,
+  y: SCREEN.height - 12 - CARD.height,
+  width: (CARD.width + 10) * 6 + 5,
+  height: CARD.height + 10,
+  fillStyle: '#0f203d',
+  strokeStyle: '',
+  shadowColor: 'red',
+  shadowBlur: 20,
+};
+
 export const OPPONENT_HAND_CARDS = {
   x: SCREEN.padding * 2 + DECK.width,
   y: 10,
@@ -145,7 +156,7 @@ export const OPPONENT_HAND_CARDS_WRAPPER = {
   y: 5,
   width: (CARD.width + 10) * 6 + 5,
   height: CARD.height + 10,
-  fillStyle: 'grey',
+  fillStyle: '#0f203d',
   strokeStyle: '',
   shadowColor: 'red',
   shadowBlur: 20,

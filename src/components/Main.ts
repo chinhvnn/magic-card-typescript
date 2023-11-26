@@ -1,5 +1,5 @@
 import { IAction, IActionCount, IEffect, TCard, TPlayStatus, TPlayerType } from '../types';
-import { DECK, GRAVE, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
+import { DECK, GRAVE, HAND_CARDS_WRAPPER, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
 import Player from './Player';
 import { checkCoordinate, getSelectedCard } from '../helper/checkCoordinate';
 import { drawViewInfo } from './draw/drawViewInfo';
@@ -13,6 +13,9 @@ import {
 import { INFO_PHASE_BTN } from '../constant/INFO_VIEW';
 import { drawFillRect, drawRect } from '../helper/draw';
 import MonsterCard from './card/MonsterCard';
+import { drawMainFrame } from './draw/drawMainFrame';
+import dwarf from '../data/cards/warrior/dwarf.json';
+import { getCardData, getDeckData } from '../helper/getData';
 
 export default class Main {
   protected players: Player[] = [];
@@ -28,16 +31,10 @@ export default class Main {
   constructor(playerNames: string[]) {
     this.playStatus = 'inMenuStartGame';
     this.turn = playerNames[0];
-    const playerDeck = [
-      new MonsterCard(1, 'up', 'atk', {} as any, 100, 1000),
-      new MonsterCard(2, 'up', 'atk', {} as any, 100, 1000),
-      new MonsterCard(3, 'up', 'atk', {} as any, 100, 1000),
-    ] as TCard[];
-    const opponentDeck = [
-      new MonsterCard(1, 'up', 'atk', {} as any, 100, 1000),
-      new MonsterCard(2, 'up', 'atk', {} as any, 100, 1000),
-      new MonsterCard(3, 'up', 'atk', {} as any, 100, 1000),
-    ] as TCard[];
+    const playerDeck = getDeckData('dwarf');
+    const opponentDeck = getDeckData('thousand-year-gold-dragon');
+    console.log('111', opponentDeck[0]);
+
     playerDeck.map((card: Card, index) => card.setIdWithDeck('player-' + card.id + '-' + index));
     opponentDeck.map((card: Card, index) => card.setIdWithDeck('opponent-' + card.id + '-' + index));
     this.player = new Player('player', playerDeck);
@@ -63,20 +60,20 @@ export default class Main {
   public start(): void {
     this.playStatus = 'inGame';
 
+    // get data
+    console.log('111 dwarf', this.opponent.getDeck()[0]);
+
     // player
     this.player.setPhase('main');
     this.player.addCardFromDeckToHand([
-      this.player.getCard('player-1-0', this.player.getDeck()),
-      this.player.getCard('player-2-1', this.player.getDeck()),
+      this.player.getCard(this.player.getDeck()[0].getIdWithDeck(), this.player.getDeck()),
     ]);
 
     // computer
     this.opponent.setPhase('waiting');
     this.opponent.addCardFromDeckToHand([
-      this.opponent.getCard('opponent-1-0', this.opponent.getDeck()),
-      this.opponent.getCard('opponent-2-1', this.opponent.getDeck()),
+      this.opponent.getCard(this.opponent.getDeck()[0].getIdWithDeck(), this.opponent.getDeck()),
     ]);
-    this.opponent.playOneCard('opponent-1-0', 'up', 'atk', 'hand', 'field');
 
     // draw game
     this.drawGame({ name: 'init', mouseCoordinate: {}, type: null });
@@ -142,14 +139,17 @@ export default class Main {
    * Draw/Update game
    *----------------------------------------------------------------*/
   public drawGame(action: IAction) {
+    const player = this.players[0];
+    const opponent = this.players[1];
+
     // clear before rerender
     this.clear();
 
-    // draw background game
-    drawFillRect(this.context, SCREEN);
+    // draw main frame
+    drawMainFrame(this.context, player, opponent, action);
 
     // draw view info game
-    drawViewInfo(this.context, this.players[0], this.players[1], action);
+    drawViewInfo(this.context, player, opponent, action);
 
     // draw player item
     this.player.drawHand(this.context, action);
@@ -164,7 +164,6 @@ export default class Main {
       OPPONENT_HAND_CARDS_WRAPPER,
       action.name === 'click-attack' && !this.opponent.getField().length,
     );
-
     drawRect(this.context, {
       ...OPPONENT_HAND_CARDS_WRAPPER,
       strokeStyle: action.name === 'click-attack' && !this.opponent.getField().length ? 'red' : '',
