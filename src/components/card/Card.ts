@@ -119,23 +119,30 @@ export default abstract class Card {
       // context.translate(x + card.width / 2, y + card.height / 2);
       if (action) {
         if (playerType === 'player') {
+          // Hover selected card
           if (
             (action.name === 'click-hand-card' || action.name === 'click-field-card') &&
             this.idWithDeck == action.payload.idWithDeck
           ) {
             context.shadowBlur = 30;
             context.shadowColor = SELECTED.shadowColor;
-            borderColor = 'blue';
+            borderColor = SELECTED.borderColor;
           }
         }
         if (playerType === 'opponent') {
+          // check if card in field & attack
           if (action.name === 'click-attack') {
-            // check if card in field
             if (this.place === 'field') {
               context.shadowBlur = 30;
               context.shadowColor = 'red';
               borderColor = 'red';
             }
+          }
+          // Hover selected card
+          if (action.name === 'click-opponent-field-card' && this.idWithDeck == action.payload.idWithDeck) {
+            context.shadowBlur = 30;
+            context.shadowColor = SELECTED.shadowColor;
+            borderColor = SELECTED.borderColor;
           }
         }
       }

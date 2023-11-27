@@ -1,6 +1,5 @@
 import { IAction, IActionCount, IEffect, TCard, TPlayStatus, TPlayerType } from '../types';
 import { DECK, GRAVE, HAND_CARDS_WRAPPER, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../constant/constant';
-import Deck from './Deck';
 import Player from './Player';
 import { checkCoordinate, getSelectedCard } from '../helper/checkCoordinate';
 import { drawViewInfo } from './draw/drawViewInfo';
@@ -22,7 +21,6 @@ export default class Main {
   protected players: Player[] = [];
   public player: Player;
   public opponent: Player;
-  protected decks: Deck[] = [];
   protected turn: string;
   protected action: IAction = { name: 'init', mouseCoordinate: {}, type: null };
 
@@ -235,6 +233,7 @@ export default class Main {
     const selectedHandCard: TCard = getSelectedCard(mouseCoordinate, player.getHand(), screenRatio);
     const selectedFieldCard: TCard = getSelectedCard(mouseCoordinate, player.getField(), screenRatio);
     const selectedMagicCard: TCard = getSelectedCard(mouseCoordinate, player.getMagicZone(), screenRatio);
+    const selectedOptFieldCard: TCard = getSelectedCard(mouseCoordinate, opponent.getField(), screenRatio);
 
     // CHECK CLICK DECK
     if (checkCoordinate(mouseCoordinate, DECK, screenRatio)) {
@@ -267,6 +266,13 @@ export default class Main {
     }
 
     // CHECK CLICK MAGIC CARD
+    if (selectedOptFieldCard?.idWithDeck && selectedOptFieldCard?.idWithDeck.split('-')?.[0] === 'opponent') {
+      nextAction.name = 'click-opponent-field-card';
+      nextAction.type = 'card';
+      nextAction.payload = selectedOptFieldCard;
+    }
+
+    // CHECK CLICK OPPONENT FIELD CARD
     if (selectedMagicCard?.idWithDeck) {
       nextAction.name = 'click-magic-card';
       nextAction.type = 'card';
@@ -276,7 +282,11 @@ export default class Main {
     // CHECK CLICK ATTACK/USE EFFECT
     if (this.action?.name === 'click-attack') {
       // If attack card
-      const selectedOpponentFieldCard: Card = getSelectedCard(mouseCoordinate, this.players[1].getField(), screenRatio);
+      const selectedOpponentFieldCard: Card = getSelectedCard(
+        mouseCoordinate,
+        this.players[1].getField(),
+        screenRatio,
+      );
       if (selectedOpponentFieldCard?.idWithDeck) {
         player.setPhase('attack');
 
@@ -284,7 +294,12 @@ export default class Main {
         nextAction.payload = selectedOpponentFieldCard;
 
         //calculator atk
-        this.cardAttack(this.action.payload.idWithDeck, selectedOpponentFieldCard.idWithDeck, player, opponent);
+        this.cardAttack(
+          this.action.payload.idWithDeck,
+          selectedOpponentFieldCard.idWithDeck,
+          player,
+          opponent,
+        );
       }
       // If attack directly
       if (checkCoordinate(mouseCoordinate, OPPONENT_HAND_CARDS_WRAPPER, screenRatio)) {
@@ -317,7 +332,10 @@ export default class Main {
       }
 
       // check click button FIELD & HAND CARD ACTION
-      if (this.action && (this.action.name === 'click-hand-card' || this.action.name === 'click-field-card')) {
+      if (
+        this.action &&
+        (this.action.name === 'click-hand-card' || this.action.name === 'click-field-card')
+      ) {
         const { attackBtn, changePositionBtn, useEffectBtn } = getActionMenuCoordinate(this.action);
 
         // ACTION-1: atk/ summon/ use effect
@@ -378,7 +396,11 @@ export default class Main {
         }
         // ACTION-3: use card effect
         if (checkCoordinate(mouseCoordinate, useEffectBtn, screenRatio)) {
-          if (this.action && this.action.name === 'click-field-card' && this.action.payload.effect?.idWithDeck) {
+          if (
+            this.action &&
+            this.action.name === 'click-field-card' &&
+            this.action.payload.effect?.idWithDeck
+          ) {
             nextAction.name = 'click-use-effect';
             nextAction.payload = this.action.payload;
           }
@@ -391,7 +413,14 @@ export default class Main {
       this.drawGame(nextAction);
     }
 
-    console.log('[LOG] - this.action, nextAction, player', this.action, nextAction, player);
+    console.log(
+      '[LOG] - this.action:',
+      this.action,
+      '\n[LOG] - nextAction:',
+      nextAction,
+      '\n[LOG] - player:',
+      player,
+    );
 
     this.action = nextAction;
   }
