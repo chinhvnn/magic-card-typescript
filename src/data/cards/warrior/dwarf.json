@@ -13,7 +13,8 @@
     "atk": 2800,
     "def": 2800,
     "description": "This is warrior",
-    "effect": {}
+    "effect": {},
+    "photo": ""
   },
   {
     "id": 1700640836167,
@@ -26,7 +27,8 @@
     "atk": 1000,
     "def": 1000,
     "description": "This is Blacksmith of Dwarf",
-    "effect": {}
+    "effect": {},
+    "photo": ""
   },
   {
     "id": 1700708410733,
@@ -34,6 +36,7 @@
     "name": "Fire of Dwarf",
     "deck": "dwarf",
     "description": "This is Fire of Dwarf",
-    "effect": {}
+    "effect": {},
+    "photo": ""
   }
 ]

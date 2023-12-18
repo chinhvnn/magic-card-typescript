@@ -11,7 +11,8 @@
     "atk": 3000,
     "def": 500,
     "description": "This is Thousand year gold dragon",
-    "effect": {}
+    "effect": {},
+    "photo": ""
   },
   {
     "id": 1700704284974,
@@ -24,7 +25,8 @@
     "atk": 300,
     "def": 100,
     "description": "This is Baby gold dragon",
-    "effect": {}
+    "effect": {},
+    "photo": ""
   },
   {
     "id": 1700706900989,
@@ -37,7 +39,8 @@
     "atk": 1300,
     "def": 2000,
     "description": "This is Thousand year dock keeper",
-    "effect": {}
+    "effect": {},
+    "photo": ""
   },
   {
     "id": 1700707036866,
@@ -45,7 +48,8 @@
     "type": "effect",
     "deck": "thousand-year-gold-dragon",
     "description": "This is Thousand year stone",
-    "effect": {}
+    "effect": {},
+    "photo": ""
   },
   {
     "id": 1700707191381,
@@ -53,6 +57,7 @@
     "type": "effect",
     "deck": "thousand-year-gold-dragon",
     "description": "This is Thousand year clock",
-    "effect": {}
+    "effect": {},
+    "photo": ""
   }
 ]
