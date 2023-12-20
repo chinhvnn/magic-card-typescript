@@ -20,14 +20,14 @@ export const INFO_PLAYER_SCORE = {
   x: INFO_PLAYER.x + 5,
   y: INFO_PLAYER.y + 18,
   font: 'bold 14px Arial',
-  fillStyle: 'red',
+  textColor: 'red',
 };
 
 export const INFO_PLAYER_PHASE = {
   x: INFO_PLAYER_SCORE.x,
   y: INFO_PLAYER_SCORE.y + 18,
   font: 'bold 14px Arial',
-  fillStyle: 'blue',
+  textColor: 'blue',
 };
 
 export const INFO_OPPONENT = {
@@ -42,13 +42,13 @@ export const INFO_OPPONENT_SCORE = {
   x: INFO_OPPONENT.x + 5,
   y: INFO_OPPONENT.y + 18,
   font: 'bold 14px Arial',
-  fillStyle: 'red',
+  textColor: 'red',
 };
 export const INFO_OPPONENT_PHASE = {
   x: INFO_OPPONENT_SCORE.x,
   y: INFO_OPPONENT_SCORE.y + 18,
   font: 'bold 14px Arial',
-  fillStyle: 'blue',
+  textColor: 'blue',
 };
 
 export const INFO_CARD = {
@@ -63,7 +63,7 @@ export const INFO_CARD_NAME = {
   x: INFO_CARD.x + 5,
   y: INFO_CARD.y + 18,
   font: 'bold 14px Arial',
-  fillStyle: 'black',
+  textColor: 'black',
 };
 
 export const INFO_CARD_IMG = {
@@ -78,7 +78,7 @@ export const INFO_CARD_ATK = {
   x: INFO_CARD.x + INFO_CARD.width - 10,
   y: INFO_CARD_IMG.y + INFO_CARD_IMG.height + 20,
   font: '12px Arial',
-  textAlign: 'right',
+  textColor: 'right',
   fillStyle: 'black',
 };
 
@@ -87,7 +87,7 @@ export const INFO_CARD_DEF = {
   y: INFO_CARD_ATK.y + 20,
   font: '12px Arial',
   textAlign: 'right',
-  fillStyle: 'black',
+  textColor: 'black',
 };
 
 export const INFO_CARD_DES = {
@@ -102,7 +102,7 @@ export const INFO_CARD_DES_TEXT = {
   x: INFO_CARD_DES.x + 10,
   y: INFO_CARD_DES.y + 15,
   font: '12px Arial',
-  fillStyle: 'black',
+  textColor: 'black',
   maxWidth: INFO_CARD_DES.width - 10,
 };
 
@@ -127,7 +127,7 @@ export const INFO_PHASE_BTN_TEXT = {
   y: INFO_PHASE_BTN.y + 22,
   width: INFO_PHASE_BTN.width,
   font: 'bold 14px Arial',
-  fillStyle: 'black',
+  textColor: 'black',
   textAlign: 'center',
   maxWidth: INFO_PHASE_BTN.width - 10,
 };

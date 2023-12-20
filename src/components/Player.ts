@@ -126,10 +126,10 @@ export default class Player {
 
   playOneCard(
     idWithDeck: string,
-    face: TCardFace,
-    position: TCardPosition,
     from: TCardPlace,
     goTo: TCardPlace,
+    face: TCardFace = 'up',
+    position: TCardPosition = 'atk',
   ) {
     let goToPlace,
       card,

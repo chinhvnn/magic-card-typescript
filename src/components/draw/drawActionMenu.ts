@@ -51,7 +51,6 @@ export const getMagicMenuCoordinate = (action: IAction) => {
 export const drawActionMenu = (context: CanvasRenderingContext2D, phase: TPlayerPhase, action?: IAction) => {
   if (action?.name === 'click-field-card' || (action?.name === 'click-hand-card' && phase === 'main')) {
     const { attackBtn, changePositionBtn, useEffectBtn } = getActionMenuCoordinate(action);
-    console.log('111 ', attackBtn);
 
     let textBtn1 = '';
     if (action.name === 'click-hand-card') {
@@ -80,7 +79,7 @@ export const drawActionMenu = (context: CanvasRenderingContext2D, phase: TPlayer
     drawFillRect(context, attackBtn);
     drawFillText(
       context,
-      { x: attackBtn.x + 6, y: attackBtn.y + 16, maxWidth: ATK_BUTTON.width - 16, fillStyle: 'red' },
+      { x: attackBtn.x + 6, y: attackBtn.y + 16, maxWidth: ATK_BUTTON.width - 16, textColor: 'red' },
       textBtn1,
     );
 
@@ -92,7 +91,7 @@ export const drawActionMenu = (context: CanvasRenderingContext2D, phase: TPlayer
         x: changePositionBtn.x + 6,
         y: changePositionBtn.y + 16,
         maxWidth: CHANGE_POSITION_BUTTON.width - 16,
-        fillStyle: 'red',
+        textColor: 'red',
       },
       textBtn2,
     );
@@ -112,6 +111,7 @@ export const drawActionMenu = (context: CanvasRenderingContext2D, phase: TPlayer
     }
   }
 };
+
 export const drawMagicActionMenu = (
   context: CanvasRenderingContext2D,
   phase: TPlayerPhase,
@@ -120,6 +120,6 @@ export const drawMagicActionMenu = (
   if (action?.name === 'click-magic-card' && phase !== 'waiting') {
     const { magicBtn } = getMagicMenuCoordinate(action);
     drawFillRect(context, magicBtn);
-    drawFillText(context, { ...magicBtn, x: magicBtn.x + 2, y: magicBtn.y + 20, fillStyle: 'red' }, 'Active');
+    drawFillText(context, { ...magicBtn, x: magicBtn.x + 2, y: magicBtn.y + 20, textColor: 'red' }, 'Active');
   }
 };

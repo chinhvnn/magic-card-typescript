@@ -5,8 +5,8 @@ import Player from '../Player';
 
 export const drawMainFrame = (
   context: CanvasRenderingContext2D,
-  player: Player,
-  opponent: Player,
+  player?: Player,
+  opponent?: Player,
   action?: IAction,
 ) => {
   // Draw background game

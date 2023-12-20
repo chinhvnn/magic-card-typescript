@@ -8,11 +8,12 @@ export type TCardType = 'monster' | 'effect' | 'trap';
 export type TCard = MonsterCard & EffectCard & TrapCard;
 
 // System
+export type TScenes = 'start-menu-scenes' | 'lobby-scenes' | 'arena-scenes';
 export type TPlayStatus = 'inMenuStartGame' | 'inGame' | 'playing' | 'pause';
 export type TCardPosition = 'def' | 'atk' | 'block';
 export type TCardFace = 'up' | 'down';
 export type TCardPlace = 'deck' | 'grave' | 'hand' | 'magic-zone' | 'field';
-export type TActionType = null | 'card' | 'deck' | 'grave' | 'action-menu';
+export type TActionType = null | 'card' | 'deck' | 'grave' | 'action-menu' | 'game-menu';
 export type TEffect = 'power' | 'heal';
 export type TPlayerType = 'player' | 'opponent';
 export type TPlayerPhase = 'main' | 'attack' | 'waiting';
@@ -27,7 +28,7 @@ export type TPlayerAction =
   | 'click-opponent-deck'
   | 'click-opponent-grave'
   | 'click-opponent-field-card'
-  | 'click-opponent-macgic-card'
+  | 'click-opponent-magic-card'
   | 'click-ok'
   | 'click-attack'
   | 'click-attack-opponent-field-card'
@@ -37,7 +38,10 @@ export type TPlayerAction =
   | 'click-set-magic-card'
   | 'click-set-monster-card'
   | 'click-use-effect'
-  | 'click-next-phase';
+  | 'click-next-phase'
+  | IGameAction;
+
+type IGameAction = 'click-start-game' | 'click-start-arena';
 
 export interface IAction {
   name: TPlayerAction;

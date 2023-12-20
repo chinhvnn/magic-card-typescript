@@ -1,20 +1,30 @@
 import './style.css';
-import GameControlButton from './components/GameControlButton';
-
+import GameStart from './components/scenes/GameStart';
 class App {
-  private _controlButton: GameControlButton;
+  constructor() {}
 
-  constructor(controlButton: GameControlButton) {
-    this._controlButton = controlButton;
-  }
+  /*----------------------------------------------------------------*
+   * Start game
+   *----------------------------------------------------------------*/
+  public startGame(type: string): void {
+    switch (type) {
+      case 'init': {
+        const gameStart = new GameStart();
+        gameStart.render();
+        break;
+      }
+      case 'continues': {
+        break;
+      }
 
-  public setup(): void {
-    this._controlButton.render();
+      default:
+        break;
+    }
   }
 }
 
 window.onload = () => {
-  let app = new App(new GameControlButton());
+  let app = new App();
 
-  app.setup();
+  app.startGame('init');
 };
