@@ -1,6 +1,6 @@
 import { START_BTN } from '../../constant/GAME_START';
 import { SCREEN } from '../../constant/constant';
-import { checkCoordinate } from '../../helper/checkCoordinate';
+import { checkCoordinate, getMouseInfo } from '../../helper/checkCoordinate';
 import { drawFillRect, drawFillText, drawTextBox } from '../../helper/draw';
 import { IAction, TScenes } from '../../types';
 import Main from '../Main';
@@ -27,12 +27,7 @@ class GameStart extends Main {
   }
 
   public checkMenuAction = (e: any) => {
-    let gameWidth = document.querySelector('canvas')?.clientWidth || 0;
-    let gameHeight = document.querySelector('canvas')?.clientHeight || 0;
-    let screenRatio = gameWidth < SCREEN.width ? gameWidth / SCREEN.width : 1;
-    let xMouse = e.clientX - (window.innerWidth - gameWidth) / 2;
-    let yMouse = e.clientY - (window.innerHeight - gameHeight - 53) / 2;
-    let mouseCoordinate = { x: xMouse, y: yMouse };
+    const { mouseCoordinate, screenRatio } = getMouseInfo(e);
     let nextAction: IAction = { name: '', mouseCoordinate, type: null, payload: {} };
 
     // CHECK CLICK START BUTTON
@@ -46,6 +41,7 @@ class GameStart extends Main {
     }
 
     this.action = nextAction;
+    console.log('[LOG] - this.action:', this.action, '\n[LOG] - nextAction:', nextAction);
   };
 }
 

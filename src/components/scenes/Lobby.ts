@@ -5,7 +5,7 @@ import { drawFillRect } from '../../helper/draw';
 import { drawMainFrame } from '../draw/drawMainFrame';
 import { drawArenaGate, drawCardCollectionGate } from '../draw/drawLobby';
 import { IAction } from '../../types';
-import { checkCoordinate } from '../../helper/checkCoordinate';
+import { checkCoordinate, getMouseInfo } from '../../helper/checkCoordinate';
 import { ARENA_GATE } from '../../constant/LOBBY';
 
 class Lobby extends Main {
@@ -37,12 +37,7 @@ class Lobby extends Main {
    * Check play action
    *----------------------------------------------------------------*/
   public checkLobbyAction(e: MouseEvent) {
-    let gameWidth = document.querySelector('canvas')?.clientWidth || 0;
-    let gameHeight = document.querySelector('canvas')?.clientHeight || 0;
-    let screenRatio = gameWidth < SCREEN.width ? gameWidth / SCREEN.width : 1;
-    let xMouse = e.clientX - (window.innerWidth - gameWidth) / 2;
-    let yMouse = e.clientY - (window.innerHeight - gameHeight - 53) / 2;
-    let mouseCoordinate = { x: xMouse, y: yMouse };
+    const { mouseCoordinate, screenRatio } = getMouseInfo(e);
     let nextAction: IAction = { name: '', mouseCoordinate, type: null, payload: {} };
 
     if (checkCoordinate(mouseCoordinate, ARENA_GATE, screenRatio)) {

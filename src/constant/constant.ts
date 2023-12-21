@@ -9,8 +9,8 @@ export const MAX_ITEM = {
 export const SCREEN = {
   x: 0,
   y: 0,
-  width: 800,
-  height: 600,
+  width: 1920,
+  height: 1080,
   padding: 15,
   lobby: 15,
   fillStyle: 'black',

@@ -1,6 +1,6 @@
 import { INFO_PHASE_BTN } from '../../constant/INFO_VIEW';
 import { DECK, GRAVE, OPPONENT_HAND_CARDS_WRAPPER, SCREEN } from '../../constant/constant';
-import { checkCoordinate, getSelectedCard } from '../../helper/checkCoordinate';
+import { checkCoordinate, getMouseInfo, getSelectedCard } from '../../helper/checkCoordinate';
 import { drawFillRect, drawRect } from '../../helper/draw';
 import { getDeckData } from '../../helper/getData';
 import { IAction, TCard, TPlayStatus, TPlayerType } from '../../types';
@@ -191,12 +191,7 @@ export default class Arena extends Main {
    * Check play action
    *----------------------------------------------------------------*/
   public checkPlayAction(e: any) {
-    let gameWidth = document.querySelector('canvas')?.clientWidth || 0;
-    let gameHeight = document.querySelector('canvas')?.clientHeight || 0;
-    let screenRatio = gameWidth < SCREEN.width ? gameWidth / SCREEN.width : 1;
-    let xMouse = e.clientX - (window.innerWidth - gameWidth) / 2;
-    let yMouse = e.clientY - (window.innerHeight - gameHeight - 53) / 2;
-    let mouseCoordinate = { x: xMouse, y: yMouse };
+    const { mouseCoordinate, screenRatio } = getMouseInfo(e);
     let nextAction: IAction = { name: '', mouseCoordinate, type: null, payload: {} };
 
     const selectedHandCard: TCard = getSelectedCard(mouseCoordinate, this.player.getHand(), screenRatio);
